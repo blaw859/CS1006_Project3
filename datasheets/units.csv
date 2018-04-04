@@ -1,0 +1,20 @@
+﻿unit,mineral cost,gas cost,build time,warp gate cooldown,supply needed,dependent on,built from
+probe,50,0,17,17,1,null,nexus
+zealot,100,0,38,28,2,null,gateway
+stalker,125,50,42,32,2,cybernetics core,gateway
+sentry,50,100,37,32,1,null,gateway
+observer,25,75,40,40,1,null,robotics facility
+immortal,250,100,55,55,4,null,robotics facility
+phoenix,150,100,35,35,2,null,stargate
+void ray,250,150,60,60,3,null,stargate
+oracle,150,150,50,50,3,null,stargate
+warp prism,200,0,50,50,2,null,robotics facility
+colossus,300,200,75,75,6,robotics bay,robotics facility
+tempest,300,200,60,60,4,fleet beacon,stargate
+high templar,50,150,55,45,2,templar archives,gateway
+dark templar,125,125,55,45,2,dark shrine,gateway
+archon,0,0,12,12,4,null,merging of two templar
+carrier,350,250,120,120,6,fleet beacon,stargate
+interceptor,25,0,8,8,0,null,carrier
+mothership core,100,100,30,30,2,cybernetics core,nexus
+mothership,300,300,100,100,5,fleet beacon,mothership core

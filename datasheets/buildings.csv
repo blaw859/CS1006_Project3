@@ -1,0 +1,16 @@
+﻿building,mineral cost,gas cost,build time,dependent on,supply provided
+nexus,400,0,100,null,10
+pylon,100,0,25,null,8
+assimilator,75,0,30,null,0
+gateway,150,0,65,pylon,0
+cybernetics core,150,0,50,gateway.pylon,0
+robotics facility,200,100,65,cybernetics core.pylon,0
+stargate,150,150,60,cybernetics core.pylon,0
+forge,150,0,45,pylon,0
+twilight council,150,100,50,cybernetics core.pylon,0
+templar archives,150,200,50,twilight council.pylon,0
+dark shrine,100,150,100,twilight council.pylon,0
+robotics bay,200,200,65,robotics facility.pylon,0
+fleet beacon,300,200,60,stargate.pylon,0
+photon cannon,120,0,40,forge,0
+warp gate,0,0,10,warp gate upgrade,0
