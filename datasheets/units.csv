@@ -1,5 +1,4 @@
-﻿unit,mineral cost,gas cost,build time,warp gate cooldown,supply needed,dependent on,built from
-probe,50,0,17,17,1,null,nexus
+﻿probe,50,0,17,17,1,null,nexus
 zealot,100,0,38,28,2,null,gateway
 stalker,125,50,42,32,2,cybernetics core,gateway
 sentry,50,100,37,32,1,null,gateway
