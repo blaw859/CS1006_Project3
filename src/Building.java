@@ -26,7 +26,8 @@ public class Building {
       dependentOn.add(buildingInfo[5]);
     }
     supplyProvided = Integer.parseInt(buildingInfo[6]);
-    Game.addToBuildingList(this);
+    Game.buildingList.add(this);
+    Game.buildingNameList.add(type);
   }
 
   public static void createBuildings() {

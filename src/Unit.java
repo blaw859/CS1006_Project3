@@ -27,7 +27,8 @@ public class Unit {
     supplyNeeded = Integer.parseInt(unitInfo[5]);
     dependentOn = unitInfo[6];
     builtFrom = unitInfo[7];
-    Game.addToUnitList(this);
+    Game.unitList.add(this);
+    Game.unitNameList.add(type);
   }
 
   public static void createUnits() {
