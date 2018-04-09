@@ -25,7 +25,7 @@ public class BuildQueue {
       return false;
     }
   }
-
+//Test
   public void updateAllBuildLists() {
     for (int i = 0; i < allBuildQueues.size(); i++) {
       String unitType = allBuildQueues.get(i).buildQueue.peek().unitType;
