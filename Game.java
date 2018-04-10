@@ -22,7 +22,7 @@ public class Game {
 
   }
 
-  public boolean buildUnit(Unit unitToBeBuilt,int quantity) {
+  public boolean buildUnit(Unit unitToBeBuilt, int quantity) {
     boolean hasResources = currentGas >= unitToBeBuilt.getGasCost()*quantity && currentMinerals >= unitToBeBuilt.getMineralCost()*quantity && maxSupply >= currentSupply+(unitToBeBuilt.getSupplyNeeded()*quantity);
     boolean buildingsExist = numberOfActiveUnits.containsKey(unitToBeBuilt.getType());
     boolean buildingsAbleToBuild = false;
@@ -52,7 +52,21 @@ public class Game {
     return true;
   }
 
-  
+  Timer timer = new Timer();
+  TimerTask task = new TimerTask() {
+      @Override
+      public void run() {
+          buildUnit(unitToBeBuilt, quantity);
+      }
+  };
+
+  //timer method which runs the buildUnit task
+    //schedueleAtFixedRate(task, delay before task is executed, time between each task execution)
+  public void buildQueue() {
+      timer.scheduleAtFixedRate(task, unitToBeBuilt.getBuildTime(), 0);
+  }
+
+
 
   private void updateSupply(int supplyToAdd) {
     currentSupply =+ supplyToAdd;
