@@ -4,8 +4,8 @@ import java.util.Scanner;
 public class SC_Build_Order_Optimizer {
   public static void main(String[] args) {
     initializeUnits();
-    Game.setGoalUnits(getGoalUnits());
-    Game game1 = new Game();
+    GameSimulator.setGoalUnits(getGoalUnits());
+    GameSimulator game1 = new GameSimulator();
   }
 
 
@@ -19,7 +19,7 @@ public class SC_Build_Order_Optimizer {
       inputString = userIn.nextLine();
       if (!inputString.equals("done")) {
         int quantity = Integer.parseInt(userIn.nextLine());
-        if (Game.unitNameList.contains(inputString)) {
+        if (GameSimulator.unitNameList.contains(inputString)) {
           goalUnits.put(inputString, quantity);
         } else {
           System.out.println("Invalid unit please try again");

@@ -1,9 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class Unit {
   private String type;
@@ -27,8 +24,9 @@ public class Unit {
     supplyNeeded = Integer.parseInt(unitInfo[5]);
     dependentOn = unitInfo[6];
     builtFrom = unitInfo[7];
-    Game.unitList.add(this);
-    Game.unitNameList.add(type);
+    GameSimulator.unitList.add(this);
+    GameSimulator.unitNameList.add(type);
+    GameSimulator.unitNameToUnit.put(type,this);
   }
 
   public static void createUnits() {

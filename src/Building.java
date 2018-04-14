@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class Building {
@@ -11,8 +10,14 @@ public class Building {
   private int gasCost;
   private int buildTime;
   private int supplyProvided;
-  private List<String> dependentOn;
+  private List<String> dependentOn = new ArrayList<>();
+  public List<BuildQueue> buildQueues;
 
+  /**
+   * This is only a reference! if you want to create a new building do not create a new building object because the objects
+   * just define the properties of each type of unit
+   * @param buildingInfo
+   */
   public Building(String[] buildingInfo) {
     dependentOn = new ArrayList<>();
     type = buildingInfo[0];
@@ -26,8 +31,10 @@ public class Building {
       dependentOn.add(buildingInfo[5]);
     }
     supplyProvided = Integer.parseInt(buildingInfo[6]);
-    Game.buildingList.add(this);
-    Game.buildingNameList.add(type);
+    buildQueues = new ArrayList<>();
+    GameSimulator.buildingList.add(this);
+    GameSimulator.buildingNameList.add(type);
+    GameSimulator.buildingNameToBuilding.put(type,this);
   }
 
   public static void createBuildings() {

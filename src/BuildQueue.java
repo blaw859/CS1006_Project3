@@ -1,16 +1,15 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 public class BuildQueue {
   private int maxQueueLength;
   private int numberOfUnitsInQueue;
-  private Game currentGame;
+  private GameSimulator currentGame;
   private LinkedList<UnitBuildTime> buildQueue = new LinkedList<>();
   public static List<BuildQueue> allBuildQueues= new ArrayList<>();
 
-  public BuildQueue(int queueLength,Game game) {
+  public BuildQueue(int queueLength, GameSimulator game) {
     this.maxQueueLength = queueLength;
     numberOfUnitsInQueue = 0;
     allBuildQueues.add(this);
@@ -18,7 +17,7 @@ public class BuildQueue {
 
   public boolean addUnitToBuildQueue(Unit unit) {
     if (numberOfUnitsInQueue < maxQueueLength){
-      buildQueue.add(new UnitBuildTime(unit.getType(), unit.getBuildTime()));
+      buildQueue.add(new UnitBuildTime(unit, unit.getBuildTime()));
       numberOfUnitsInQueue++;
       return true;
     } else {
@@ -28,7 +27,7 @@ public class BuildQueue {
 //Test
   public void updateAllBuildLists() {
     for (int i = 0; i < allBuildQueues.size(); i++) {
-      String unitType = allBuildQueues.get(i).buildQueue.peek().unitType;
+      Unit unit = allBuildQueues.get(i).buildQueue.peek().unit;
       if (allBuildQueues.get(i).numberOfUnitsInQueue > 0) {
         allBuildQueues.get(i).buildQueue.peek().buildTime--;
         if (allBuildQueues.get(i).buildQueue.peek().buildTime == 0) {
@@ -38,7 +37,7 @@ public class BuildQueue {
           } else {
             currentGame.numberOfActiveUnits.put(unitType,currentGame.numberOfActiveUnits.get(unitType)+1)
           }*/
-          currentGame.numberOfActiveUnits.merge(unitType, 1, (a, b) -> a + b);
+          currentGame.numberOfActiveUnits.merge(unit, 1, (a, b) -> a + b);
 
         }
       }
@@ -46,11 +45,11 @@ public class BuildQueue {
   }
 
   private class UnitBuildTime{
-    String unitType;
+    Unit unit;
     int buildTime;
 
-    public UnitBuildTime (String unitType, int buildTime) {
-      this.unitType = unitType;
+    public UnitBuildTime (Unit unit, int buildTime) {
+      this.unit = unit;
       this.buildTime = buildTime;
     }
   }
