@@ -1,3 +1,5 @@
+import com.sun.org.apache.xpath.internal.operations.Operation;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +10,8 @@ public class GameSimulator {
   private int maxSupply;
   private int currentMinerals;
   private int currentGas;
+  private int probesOnGas;
+  private boolean goalComplete;
   private BuildQueue buildQueue;
 
   public static List<Unit> unitList = new ArrayList<>();
@@ -24,7 +28,6 @@ public class GameSimulator {
   private static HashMap<String,Integer> goalUnits;
   public List<Building> activeBuildingList = new ArrayList<>();
   //to decide on whether list or hashmap is better for availableProbes
-  public HashMap<Unit, Integer> numberOfAvailableProbes;
   public HashMap<Unit,Integer> numberOfActiveUnits;
   public HashMap<Building,Integer> numberOfActiveBuildings;
 
@@ -38,17 +41,10 @@ public class GameSimulator {
    * @param buildingToBeBuilt
    * @return
    */
-  public boolean buildBuilding(Building buildingToBeBuilt, List availableProbes) {
+  public boolean buildBuilding(Building buildingToBeBuilt, HashMap numberOfAvailableProbes) {
     boolean hasResources = currentGas >= buildingToBeBuilt.getGasCost() && currentMinerals >= buildingToBeBuilt.getMineralCost();
     boolean hasNeededBuildings = activeBuildingList.contains(buildingToBeBuilt.getDependentOn());
-    boolean hasAvailableProbes = true;
-    for (Unit key : numberOfAvailableProbes.keySet()) {
-      if (numberOfAvailableProbes.get(key) > 0) {
-        hasAvailableProbes = true;
-      } else {
-        hasAvailableProbes = false;
-      }
-    }
+    boolean hasAvailableProbes = numberOfActiveUnits.get(unitNameToUnit.get("probe")) > 0;
     if(!(hasResources && hasNeededBuildings && hasAvailableProbes)) {
       return false;
     } else {
@@ -72,7 +68,6 @@ public class GameSimulator {
     boolean buildingsExist = numberOfActiveUnits.containsKey(unitToBeBuilt);
     //Indicates if the buildings are able to build the unit
     boolean buildingsAbleToBuild = false;
-    boolean hasAvailableProbes = true;
     if (!(buildingsExist && hasResources)) {
      return false;
     } else {
@@ -81,6 +76,7 @@ public class GameSimulator {
     for (int i = 0; i < quantity; i++) {
 
     }
+    return true;
   }
 
   private void updateSupply(int supplyToAdd) {
@@ -101,6 +97,12 @@ public class GameSimulator {
 
   private void startGame() {
     numberOfActiveBuildings.put(buildingNameToBuilding.get("nexus"),1);
+    numberOfActiveUnits.put(unitNameToUnit.get("probe"),6);
+
+    this.currentMinerals = 50;
+    this.currentGas = 0;
+    this.goalComplete = false;
+    this.probesOnGas = 0;
   }
 
   private class buildingToBuildQueue {
@@ -120,5 +122,4 @@ public class GameSimulator {
       this.buildQueue = buildQueue;
     }
   }
-
 }
