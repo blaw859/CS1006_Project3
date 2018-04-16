@@ -1,5 +1,3 @@
-import com.sun.org.apache.xpath.internal.operations.Operation;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -94,7 +92,10 @@ public class GameSimulator {
   public static void addToBuildingList(Building buildingToAdd) {
     buildingList.add(buildingToAdd);
   }
-
+  /**
+   * Added some starting values for nexus, probes and the number of minerals and gas
+   * goalComplete initially set to false
+   */
   private void startGame() {
     numberOfActiveBuildings.put(buildingNameToBuilding.get("nexus"),1);
     numberOfActiveUnits.put(unitNameToUnit.get("probe"),6);
