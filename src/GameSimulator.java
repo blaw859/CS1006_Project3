@@ -50,7 +50,6 @@ public class GameSimulator {
    * 3 - Checks if there is an available probe to initiate building, if not, it would deassign from mineral gathering
    * to start construction then reassign the probe back to mining the mineral
    * 4 - Checks and gets the build time. Will add the building to numberOfActiveBuildings once timer has elapsed
-   * !Need to add a way that the program will take an amount of time to build the units and also will use a probe to do it
    * Adds a building to a
    * @param buildingToBeBuilt
    * @return
@@ -68,6 +67,8 @@ public class GameSimulator {
       try {
         //Thread.sleep(buildTime) should act as a delay so that the building is added to the activeBuildings once it has finished "sleeping"
         Thread.sleep(buildTime * 1000);
+        currentGas -= currentGas - buildingToBeBuilt.getGasCost();
+        currentMinerals -= currentMinerals - buildingToBeBuilt.getMineralCost();
         numberOfActiveBuildings.merge(buildingToBeBuilt, 1, (a, b) -> a + b);
         buildingToBeBuilt.createNewBuildQueue(this);
         System.out.println("Total number of " + numberOfActiveBuildings.get(buildingNameToBuilding.get(buildingName)) + ": " + numOfBuilding);
