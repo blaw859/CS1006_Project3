@@ -2,15 +2,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-
+//TODO make constructing buildings more accurate
+//TODO increase accuracy of mineral mining eg. first second third probe
 public class GameSimulator {
   private int currentSupply;
   private int maxSupply;
   private int currentMinerals;
   private int currentGas;
-  private int probesOnGas;
   private boolean goalComplete;
   private BuildQueue buildQueue;
+  //Ticks per second
+  private final int TICKRATE = 1;
+  private final int STANDARD_MINERALS_PER_MIN = 41;
+  private final int THIRD_PROBE_MINERALS_PER_MIN = 20;
 
   public static List<Unit> unitList = new ArrayList<>();
   public static List<String> unitNameList = new ArrayList<>();
@@ -26,11 +30,14 @@ public class GameSimulator {
   private static HashMap<String,Integer> goalUnits;
   public List<Building> activeBuildingList = new ArrayList<>();
   //to decide on whether list or hashmap is better for availableProbes
-  public HashMap<Unit,Integer> numberOfActiveUnits;
-  public HashMap<Building,Integer> numberOfActiveBuildings;
+  public HashMap<Unit,Integer> numberOfActiveUnits = new HashMap<>();
+  public HashMap<Building,Integer> numberOfActiveBuildings = new HashMap<>();
+  public HashMap<String,Integer> numberOfProbesAtLocation = new HashMap<>();
 
   public GameSimulator() {
-
+    startGame();
+    buildBuilding(buildingNameToBuilding.get("gateway"));
+    System.out.println("Number of probes: "+numberOfActiveUnits.get(unitNameToUnit.get("probe")));
   }
 
   /**
@@ -39,7 +46,7 @@ public class GameSimulator {
    * @param buildingToBeBuilt
    * @return
    */
-  public boolean buildBuilding(Building buildingToBeBuilt, HashMap numberOfAvailableProbes) {
+  public boolean buildBuilding(Building buildingToBeBuilt) {
     boolean hasResources = currentGas >= buildingToBeBuilt.getGasCost() && currentMinerals >= buildingToBeBuilt.getMineralCost();
     boolean hasNeededBuildings = activeBuildingList.contains(buildingToBeBuilt.getDependentOn());
     boolean hasAvailableProbes = numberOfActiveUnits.get(unitNameToUnit.get("probe")) > 0;
@@ -47,6 +54,7 @@ public class GameSimulator {
       return false;
     } else {
       numberOfActiveBuildings.merge(buildingToBeBuilt, 1, (a, b) -> a + b);
+      buildingToBeBuilt.createNewBuildQueue(this);
     }
     return true;
   }
@@ -62,19 +70,53 @@ public class GameSimulator {
   public boolean buildUnit(Unit unitToBeBuilt) {
     //Indicates if the user has the resources to build the unit
     boolean hasResources = currentGas >= unitToBeBuilt.getGasCost() && currentMinerals >= unitToBeBuilt.getMineralCost() && maxSupply >= currentSupply+(unitToBeBuilt.getSupplyNeeded());
-    //Indicates if the buildings exist that are required to build the unit
-    boolean buildingsExist = numberOfActiveUnits.containsKey(unitToBeBuilt);
+    //Indicates if the buildings exist that are required to build the unit gets dependant on strings and then uses strings to get buildings
+    boolean buildingsExist = numberOfActiveBuildings.containsKey(buildingNameToBuilding.get(unitToBeBuilt.getDependentOn()));
     //Indicates if the buildings are able to build the unit
     boolean buildingsAbleToBuild = false;
     if (!(buildingsExist && hasResources)) {
      return false;
     } else {
-
-    }
-    for (int i = 0; i < quantity; i++) {
-
+      currentGas =- unitToBeBuilt.getGasCost();
+      currentMinerals =- unitToBeBuilt.getMineralCost();
+      currentSupply =+ unitToBeBuilt.getSupplyNeeded();
+      getShortestBuildQueue(buildingNameToBuilding.get(unitToBeBuilt.getDependentOn())).addUnitToBuildQueue(unitToBeBuilt);
     }
     return true;
+  }
+
+  private BuildQueue getShortestBuildQueue(Building building) {
+    BuildQueue shortestBuildQueue = building.buildQueues.get(0);
+    int shortestQueueUnits = Integer.MAX_VALUE;
+    for (int i = 0; i < numberOfActiveBuildings.get(building); i++) {
+      if (building.buildQueues.get(i).getNumberOfUnitsInQueue() < shortestQueueUnits) {
+        shortestBuildQueue = building.buildQueues.get(i);
+      }
+    }
+    return shortestBuildQueue;
+  }
+
+  private void updateAllResources() {
+    currentMinerals =+ (int) Math.round(calculateMineralsInPerTick());
+
+  }
+
+  private double calculateMineralsInPerTick() {
+    double mineralsIn;
+    int numberOfMineralProbes = numberOfProbesAtLocation.get("minerals");
+    if (numberOfMineralProbes <= 16) {
+      mineralsIn = 41D*numberOfMineralProbes;
+    } else {
+      mineralsIn = (41D*16)+(20D*(numberOfMineralProbes-16));
+    }
+    return mineralsIn/(60*TICKRATE);
+  }
+
+  private double calculateGasInPerTick() {
+    double gasIn;
+    int numberOfGasProbes = numberOfProbesAtLocation.get("gas");
+    gasIn = 38D*numberOfGasProbes;
+    return gasIn/(60*TICKRATE);
   }
 
   private void updateSupply(int supplyToAdd) {
@@ -99,15 +141,17 @@ public class GameSimulator {
   private void startGame() {
     numberOfActiveBuildings.put(buildingNameToBuilding.get("nexus"),1);
     numberOfActiveUnits.put(unitNameToUnit.get("probe"),6);
-
-    this.currentMinerals = 50;
-    this.currentGas = 0;
-    this.goalComplete = false;
-    this.probesOnGas = 0;
+    currentMinerals = 50;
+    currentGas = 0;
+    goalComplete = false;
+    numberOfProbesAtLocation.put("minerals",6);
+    numberOfProbesAtLocation.put("gas",0);
+    numberOfProbesAtLocation.put("building",0);
   }
 
   private class buildingToBuildQueue {
     String buildingType;
+    BuildQueue buildQueue;
 
     public buildingToBuildQueue(String buildingType, BuildQueue buildQueue) {
       this.buildingType = buildingType;
@@ -117,6 +161,7 @@ public class GameSimulator {
 
   private class unitToBuildQueue {
     String unitType;
+    BuildQueue buildQueue;
 
     public unitToBuildQueue(String unitType, BuildQueue buildQueue) {
       this.unitType = unitType;

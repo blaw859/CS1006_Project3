@@ -37,6 +37,10 @@ public class Building {
     GameSimulator.buildingNameToBuilding.put(type,this);
   }
 
+  public void createNewBuildQueue (GameSimulator currentGame) {
+    buildQueues.add(new BuildQueue(5,currentGame));
+  }
+
   public static void createBuildings() {
     File csvFile = new File("/Users/benlawrence859/Documents/University/First Year/CS1006_Project3/datasheets/buildings.csv");
     String currentLine = "";

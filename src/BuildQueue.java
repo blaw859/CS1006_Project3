@@ -15,6 +15,10 @@ public class BuildQueue {
     allBuildQueues.add(this);
   }
 
+  public int getNumberOfUnitsInQueue() {
+    return numberOfUnitsInQueue;
+  }
+
   public boolean addUnitToBuildQueue(Unit unit) {
     if (numberOfUnitsInQueue < maxQueueLength){
       buildQueue.add(new UnitBuildTime(unit, unit.getBuildTime()));
@@ -38,7 +42,6 @@ public class BuildQueue {
             currentGame.numberOfActiveUnits.put(unitType,currentGame.numberOfActiveUnits.get(unitType)+1)
           }*/
           currentGame.numberOfActiveUnits.merge(unit, 1, (a, b) -> a + b);
-
         }
       }
     }
