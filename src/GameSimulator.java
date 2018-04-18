@@ -40,21 +40,40 @@ public class GameSimulator {
     System.out.println("Number of probes: "+numberOfActiveUnits.get(unitNameToUnit.get("probe")));
   }
 
+  public void executeOrders() {
+    //to implement future switch statement for possible orders
+  }
+
   /**
+   * 1 - Checks if there is sufficient resources to build
+   * 2 - Checks if it depends on another building(s) to build
+   * 3 - Checks if there is an available probe to initiate building, if not, it would deassign from mineral gathering
+   * to start construction then reassign the probe back to mining the mineral
+   * 4 - Checks and gets the build time. Will add the building to numberOfActiveBuildings once timer has elapsed
    * !Need to add a way that the program will take an amount of time to build the units and also will use a probe to do it
    * Adds a building to a
    * @param buildingToBeBuilt
    * @return
    */
   public boolean buildBuilding(Building buildingToBeBuilt) {
+    String buildingName = buildingToBeBuilt.toString();
+    int numOfBuilding = numberOfActiveBuildings.get(buildingToBeBuilt);
     boolean hasResources = currentGas >= buildingToBeBuilt.getGasCost() && currentMinerals >= buildingToBeBuilt.getMineralCost();
     boolean hasNeededBuildings = activeBuildingList.contains(buildingToBeBuilt.getDependentOn());
     boolean hasAvailableProbes = numberOfActiveUnits.get(unitNameToUnit.get("probe")) > 0;
+    long buildTime = buildingToBeBuilt.getBuildTime();
     if(!(hasResources && hasNeededBuildings && hasAvailableProbes)) {
       return false;
     } else {
-      numberOfActiveBuildings.merge(buildingToBeBuilt, 1, (a, b) -> a + b);
-      buildingToBeBuilt.createNewBuildQueue(this);
+      try {
+        //Thread.sleep(buildTime) should act as a delay so that the building is added to the activeBuildings once it has finished "sleeping"
+        Thread.sleep(buildTime * 1000);
+        numberOfActiveBuildings.merge(buildingToBeBuilt, 1, (a, b) -> a + b);
+        buildingToBeBuilt.createNewBuildQueue(this);
+        System.out.println("Total number of " + numberOfActiveBuildings.get(buildingNameToBuilding.get(buildingName)) + ": " + numOfBuilding);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     }
     return true;
   }
