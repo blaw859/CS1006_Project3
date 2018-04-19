@@ -34,7 +34,7 @@ public class GameSimulator {
 
   public GameSimulator(InstructionList instructions) {
     startGame();
-    buildBuilding(buildingNameToBuilding.get("gateway"));
+    constructBuilding(buildingNameToBuilding.get("gateway"));
     System.out.println("Number of probes: "+numberOfActiveUnits.get(unitNameToUnit.get("probe")));
     int maxLoops = 10;
     int turnNumber = 0;
@@ -58,26 +58,26 @@ public class GameSimulator {
    * to start construction then reassign the probe back to mining the mineral
    * 4 - Checks and gets the build time. Will add the building to numberOfActiveBuildings once timer has elapsed
    * Adds a building to a
-   * @param buildingToBeBuilt
+   * @param buildingToBeConstructed
    * @return
    */
-  public boolean buildBuilding(Building buildingToBeBuilt) {
-    String buildingName = buildingToBeBuilt.toString();
-    int numOfBuilding = numberOfActiveBuildings.get(buildingToBeBuilt);
-    boolean hasResources = currentGas >= buildingToBeBuilt.getGasCost() && currentMinerals >= buildingToBeBuilt.getMineralCost();
-    boolean hasNeededBuildings = activeBuildingList.contains(buildingToBeBuilt.getDependentOn());
+  public boolean constructBuilding(Building buildingToBeConstructed) {
+    String buildingName = buildingToBeConstructed.toString();
+    int numOfBuilding = numberOfActiveBuildings.get(buildingToBeConstructed);
+    boolean hasResources = currentGas >= buildingToBeConstructed.getGasCost() && currentMinerals >= buildingToBeConstructed.getMineralCost();
+    boolean hasNeededBuildings = activeBuildingList.contains(buildingToBeConstructed.getDependentOn());
     boolean hasAvailableProbes = numberOfActiveUnits.get(unitNameToUnit.get("probe")) > 0;
-    long buildTime = buildingToBeBuilt.getBuildTime();
+    long buildTime = buildingToBeConstructed.getBuildTime();
     if(!(hasResources && hasNeededBuildings && hasAvailableProbes)) {
       return false;
     } else {
       try {
         //Thread.sleep(buildTime) should act as a delay so that the building is added to the activeBuildings once it has finished "sleeping"
         Thread.sleep(buildTime * 1000);
-        currentGas -= currentGas - buildingToBeBuilt.getGasCost();
-        currentMinerals -= currentMinerals - buildingToBeBuilt.getMineralCost();
-        numberOfActiveBuildings.merge(buildingToBeBuilt, 1, (a, b) -> a + b);
-        buildingToBeBuilt.createNewBuildQueue(this);
+        currentGas -= currentGas - buildingToBeConstructed.getGasCost();
+        currentMinerals -= currentMinerals - buildingToBeConstructed.getMineralCost();
+        numberOfActiveBuildings.merge(buildingToBeConstructed, 1, (a, b) -> a + b);
+        buildingToBeConstructed.createNewBuildQueue(this);
         System.out.println("Total number of " + numberOfActiveBuildings.get(buildingNameToBuilding.get(buildingName)) + ": " + numOfBuilding);
       } catch (InterruptedException e) {
         e.printStackTrace();
@@ -91,23 +91,23 @@ public class GameSimulator {
    * 1 - The buildings are there and so are the resources so the unit can be immediately added to a build queue
    * 2 - The buildings are there but the resources are not, so the program will keep trying this method until it has the necessary resources
    * 3 - The buildings are not there so no amount of waiting will mean the unit can be built and the method returns false
-   * @param unitToBeBuilt
+   * @param unitToBeConstructed
    * @return True if the unit has been built, false otherwise
    */
-  public boolean buildUnit(Unit unitToBeBuilt) {
+  public boolean constructUnit(Unit unitToBeConstructed) {
     //Indicates if the user has the resources to build the unit
-    boolean hasResources = currentGas >= unitToBeBuilt.getGasCost() && currentMinerals >= unitToBeBuilt.getMineralCost() && maxSupply >= currentSupply+(unitToBeBuilt.getSupplyNeeded());
+    boolean hasResources = currentGas >= unitToBeConstructed.getGasCost() && currentMinerals >= unitToBeConstructed.getMineralCost() && maxSupply >= currentSupply+(unitToBeConstructed.getSupplyNeeded());
     //Indicates if the buildings exist that are required to build the unit gets dependant on strings and then uses strings to get buildings
-    boolean buildingsExist = numberOfActiveBuildings.containsKey(buildingNameToBuilding.get(unitToBeBuilt.getDependentOn()));
+    boolean buildingsExist = numberOfActiveBuildings.containsKey(buildingNameToBuilding.get(unitToBeConstructed.getDependentOn()));
     //Indicates if the buildings are able to build the unit
     boolean buildingsAbleToBuild = false;
     if (!(buildingsExist && hasResources)) {
      return false;
     } else {
-      currentGas =- unitToBeBuilt.getGasCost();
-      currentMinerals =- unitToBeBuilt.getMineralCost();
-      currentSupply =+ unitToBeBuilt.getSupplyNeeded();
-      getShortestBuildQueue(buildingNameToBuilding.get(unitToBeBuilt.getDependentOn())).addUnitToBuildQueue(unitToBeBuilt);
+      currentGas =- unitToBeConstructed.getGasCost();
+      currentMinerals =- unitToBeConstructed.getMineralCost();
+      currentSupply =+ unitToBeConstructed.getSupplyNeeded();
+      getShortestBuildQueue(buildingNameToBuilding.get(unitToBeConstructed.getDependentOn())).addUnitToBuildQueue(unitToBeConstructed);
     }
     return true;
   }
@@ -169,6 +169,8 @@ public class GameSimulator {
   public static void setGoalUnits(HashMap<Unit,Integer> goalUnits) {
     GameSimulator.goalUnits = goalUnits;
   }
+
+  public static HashMap<Unit, Integer> getGoalUnits() { return GameSimulator.goalUnits; }
 
   public static void addToUnitList(Unit unitToAdd) {
     unitList.add(unitToAdd);
