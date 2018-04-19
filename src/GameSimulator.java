@@ -1,7 +1,5 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+
 //TODO make constructing buildings more accurate
 //TODO increase accuracy of mineral mining eg. first second third probe
 public class GameSimulator {
@@ -27,17 +25,26 @@ public class GameSimulator {
   //public HashMap<Building, BuildQueue> buildingToBuildQueue = new HashMap<>();
   //For the moment we will say that the zealot can still be working at a building whilst building another building
   public HashMap<Building, Integer> zealotsWorkingOnBuilding;
-  private static HashMap<String,Integer> goalUnits;
+  private static HashMap<Unit,Integer> goalUnits;
   public List<Building> activeBuildingList = new ArrayList<>();
   //to decide on whether list or hashmap is better for availableProbes
   public HashMap<Unit,Integer> numberOfActiveUnits = new HashMap<>();
   public HashMap<Building,Integer> numberOfActiveBuildings = new HashMap<>();
   public HashMap<String,Integer> numberOfProbesAtLocation = new HashMap<>();
 
-  public GameSimulator() {
+  public GameSimulator(InstructionList instructions) {
     startGame();
     buildBuilding(buildingNameToBuilding.get("gateway"));
     System.out.println("Number of probes: "+numberOfActiveUnits.get(unitNameToUnit.get("probe")));
+    int maxLoops = 10;
+    int turnNumber = 0;
+    boolean nextInstruction = false;
+    while (!checkGoalUnitsBuilt() && turnNumber < maxLoops) {
+      updateAllResources();
+      System.out.println("Turn number: "+turnNumber+" Minerals:"+currentMinerals);
+
+      turnNumber++;
+    }
   }
 
   public void executeOrders() {
@@ -117,8 +124,9 @@ public class GameSimulator {
   }
 
   private void updateAllResources() {
-    currentMinerals =+ (int) Math.round(calculateMineralsInPerTick());
-
+    System.out.println(calculateMineralsInPerTick());
+    currentMinerals = currentMinerals + (int) Math.round(calculateMineralsInPerTick());
+    currentGas =+ (int) Math.round(calculateGasInPerTick());
   }
 
   private double calculateMineralsInPerTick() {
@@ -139,11 +147,26 @@ public class GameSimulator {
     return gasIn/(60*TICKRATE);
   }
 
+  private boolean checkGoalUnitsBuilt() {
+    List<Unit> goalUnitList = new ArrayList<>();
+    goalUnitList.addAll(goalUnits.keySet());
+    for (int i = 0; i < goalUnitList.size(); i++) {
+      if (numberOfActiveUnits.get(goalUnitList.get(i)) != null) {
+        if (numberOfActiveUnits.get(goalUnitList.get(i)) < goalUnits.get(goalUnitList.get(i))) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private void updateSupply(int supplyToAdd) {
     currentSupply =+ supplyToAdd;
   }
 
-  public static void setGoalUnits(HashMap<String,Integer> goalUnits) {
+  public static void setGoalUnits(HashMap<Unit,Integer> goalUnits) {
     GameSimulator.goalUnits = goalUnits;
   }
 

@@ -9,8 +9,8 @@ public class SC_Build_Order_Optimizer {
   }
 
 
-  private static HashMap<String, Integer> getGoalUnits() {
-    HashMap<String,Integer> goalUnits = new HashMap<>();
+  private static HashMap<Unit, Integer> getGoalUnits() {
+    HashMap<Unit,Integer> goalUnits = new HashMap<>();
     Scanner userIn = new Scanner(System.in);
     String inputString = "";
     int i = 0;
@@ -20,7 +20,7 @@ public class SC_Build_Order_Optimizer {
       if (!inputString.equals("done")) {
         int quantity = Integer.parseInt(userIn.nextLine());
         if (GameSimulator.unitNameList.contains(inputString)) {
-          goalUnits.put(inputString, quantity);
+          goalUnits.put(GameSimulator.unitNameToUnit.get(inputString), quantity);
         } else {
           System.out.println("Invalid unit please try again");
         }
