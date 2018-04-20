@@ -14,7 +14,9 @@ public class GameSimulator {
   private boolean goalComplete;
   private BuildQueue buildQueue;
   //Max game time in minutes
-  private static int maxTime = 20;
+  private static int maxTime;
+  private static int time;
+
   private final int SECONDS_IN_MINUTES = 60;
   //Ticks per second
   private final int TICKRATE = 1;
@@ -46,7 +48,7 @@ public class GameSimulator {
   }
 
   public void gameClock() {
-    while (maxTime > 0) {
+    while (time < maxTime) {
       if () {
         //Check all possible moves (methods)
         buildBuilding();
@@ -57,13 +59,13 @@ public class GameSimulator {
           getTimeStamp();
         }
       } else {
-        maxTime--;
+        time++;
       }
     }
   }
 
   public String getTimeStamp() {
-    int timeInSeconds = maxTime * SECONDS_IN_MINUTES;
+    int timeInSeconds = time * SECONDS_IN_MINUTES;
     int mins = timeInSeconds / 60;
     int secs = timeInSeconds % 60;
 
@@ -98,7 +100,7 @@ public class GameSimulator {
         numberOfActiveBuildings.merge(buildingToBeBuilt, 1, (a, b) -> a + b);
         buildingToBeBuilt.createNewBuildQueue(this);
         System.out.println("Total number of " + numberOfActiveBuildings.get(buildingNameToBuilding.get(buildingName)) + ": " + numOfBuilding);
-        maxTime--;
+        time++;
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -128,7 +130,7 @@ public class GameSimulator {
       currentMinerals =- unitToBeBuilt.getMineralCost();
       currentSupply =+ unitToBeBuilt.getSupplyNeeded();
       getShortestBuildQueue(buildingNameToBuilding.get(unitToBeBuilt.getDependentOn())).addUnitToBuildQueue(unitToBeBuilt);
-      maxTime--;
+      time++;
     }
     return true;
   }
@@ -141,7 +143,7 @@ public class GameSimulator {
         shortestBuildQueue = building.buildQueues.get(i);
       }
     }
-    maxTime--;
+    time++;
     return shortestBuildQueue;
   }
 
