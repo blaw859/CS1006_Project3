@@ -16,6 +16,8 @@ public class InstructionList {
     getThingsWorthBuilding();
     initializeInstructions();
     //System.out.println(possibleInstructions.get(GameSimulator.unitNameToUnit.get("zealot")).method.getName());
+    orderedInstructionList.add(possibleInstructions.get(buildingsToConstruct.get(0)));
+    orderedInstructionList.add(possibleInstructions.get(unitsToConstruct.get(0)));
 
     /*for (int i = 0; i < unitsToConstruct.size(); i++) {
       System.out.println(unitsToConstruct.get(i).getType());
@@ -56,6 +58,25 @@ public class InstructionList {
       if (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()));
       }
+    }
+  }
+
+  /**
+   * Recursive method that when given a unit will get all of the necessary dependencies for a unit and add them to
+   * @param unit
+   */
+  private void getDependencies (Unit unit) {
+    if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn())))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
+        getDependencies(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
+    }
+  }
+
+  private void getDependencies (Building building) {
+    if (GameSimulator.unitNameList.contains(building.getDependentOn())) {
+
+    } else if (GameSimulator.buildingNameList.contains(building.getDependentOn())) {
+
     }
   }
 
