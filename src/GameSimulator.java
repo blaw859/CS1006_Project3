@@ -5,15 +5,14 @@ import java.util.*;
 public class GameSimulator {
   private int currentSupply;
   private int maxSupply;
-  private int currentMinerals;
-  private int currentGas;
+  private double currentMinerals;
+  private double currentGas;
   private boolean goalComplete;
   private BuildQueue buildQueue;
   //Ticks per second
   private final int TICKRATE = 1;
   private final int STANDARD_MINERALS_PER_MIN = 41;
   private final int THIRD_PROBE_MINERALS_PER_MIN = 20;
-
   public static List<Unit> unitList = new ArrayList<>();
   public static List<String> unitNameList = new ArrayList<>();
   public static List<Building> buildingList = new ArrayList<>();
@@ -24,7 +23,6 @@ public class GameSimulator {
   //This maps each building to its respective buildqueue
   //public HashMap<Building, BuildQueue> buildingToBuildQueue = new HashMap<>();
   //For the moment we will say that the zealot can still be working at a building whilst building another building
-  public HashMap<Building, Integer> zealotsWorkingOnBuilding;
   private static HashMap<Unit,Integer> goalUnits;
   public List<Building> activeBuildingList = new ArrayList<>();
   //to decide on whether list or hashmap is better for availableProbes
@@ -63,8 +61,8 @@ public class GameSimulator {
    */
   public boolean constructBuilding(Building buildingToBeConstructed) {
     String buildingName = buildingToBeConstructed.toString();
-    System.out.println(numberOfActiveBuildings);
-    System.out.println(buildingToBeConstructed);
+    //System.out.println(numberOfActiveBuildings);
+    //System.out.println(buildingToBeConstructed);
     if (numberOfActiveBuildings.get(buildingToBeConstructed) == null) {
       numberOfActiveBuildings.put(buildingToBeConstructed,0);
     }
@@ -83,7 +81,7 @@ public class GameSimulator {
         currentMinerals -= currentMinerals - buildingToBeConstructed.getMineralCost();
         numberOfActiveBuildings.merge(buildingToBeConstructed, 1, (a, b) -> a + b);
         buildingToBeConstructed.createNewBuildQueue(this);
-        System.out.println("Total number of " + numberOfActiveBuildings.get(buildingNameToBuilding.get(buildingName)) + ": " + numOfBuilding);
+        //System.out.println("Total number of " + numberOfActiveBuildings.get(buildingNameToBuilding.get(buildingName)) + ": " + numOfBuilding);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -129,9 +127,9 @@ public class GameSimulator {
   }
 
   private void updateAllResources() {
-    System.out.println(calculateMineralsInPerTick());
-    currentMinerals = currentMinerals + (int) Math.round(calculateMineralsInPerTick());
-    currentGas =+ (int) Math.round(calculateGasInPerTick());
+    //System.out.println(calculateMineralsInPerTick());
+    currentMinerals = currentMinerals + calculateMineralsInPerTick();
+    currentGas =+ calculateGasInPerTick();
   }
 
   private double calculateMineralsInPerTick() {
