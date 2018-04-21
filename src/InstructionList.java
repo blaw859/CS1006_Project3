@@ -8,9 +8,12 @@ public class InstructionList {
   List<Method> methodList = new ArrayList<>();
   Class gameClass = GameSimulator.class;
   GameSimulator currentGame;
+  List<Unit> unitsToConstruct = new ArrayList<>();
+  List<Building> buildingsToConstruct = new ArrayList<>();
 
-  InstructionList(GameSimulator game) {
-    currentGame = game;
+  InstructionList() {
+    //currentGame = game;
+    getThingsWorthBuilding();
   }
 
   private void initializeMethods() {
@@ -23,9 +26,18 @@ public class InstructionList {
   }
 
   //Probably rename this before submission
-  private ArrayList<Object> getThingsWorthBuilding(G) {
-    List<Object> toConstruct = new ArrayList<>();
+  private void getThingsWorthBuilding() {
+    List<Unit> unitsToConstruct = new ArrayList<>();
     HashMap<Unit,Integer> goalUnits = GameSimulator.getGoalUnits();
-
+    unitsToConstruct.addAll(goalUnits.keySet());
+    for (int i = 0; i < unitsToConstruct.size(); i++) {
+      Unit thisUnit = unitsToConstruct.get(i);
+      if ((GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn())))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()));
+      }
+      if (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()));
+      }
+    }
   }
 }

@@ -35,6 +35,7 @@ public class Building {
     GameSimulator.buildingList.add(this);
     GameSimulator.buildingNameList.add(type);
     GameSimulator.buildingNameToBuilding.put(type,this);
+
   }
 
   public void createNewBuildQueue (GameSimulator currentGame) {

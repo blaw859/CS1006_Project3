@@ -31,7 +31,7 @@ public class SC_Build_Order_Optimizer {
   }
 
   private static void initializeUnits() {
-    Unit.createUnits();
     Building.createBuildings();
+    Unit.createUnits();
   }
 }

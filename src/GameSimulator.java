@@ -63,6 +63,11 @@ public class GameSimulator {
    */
   public boolean constructBuilding(Building buildingToBeConstructed) {
     String buildingName = buildingToBeConstructed.toString();
+    System.out.println(numberOfActiveBuildings);
+    System.out.println(buildingToBeConstructed);
+    if (numberOfActiveBuildings.get(buildingToBeConstructed) == null) {
+      numberOfActiveBuildings.put(buildingToBeConstructed,0);
+    }
     int numOfBuilding = numberOfActiveBuildings.get(buildingToBeConstructed);
     boolean hasResources = currentGas >= buildingToBeConstructed.getGasCost() && currentMinerals >= buildingToBeConstructed.getMineralCost();
     boolean hasNeededBuildings = activeBuildingList.contains(buildingToBeConstructed.getDependentOn());
