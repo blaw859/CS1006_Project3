@@ -15,6 +15,7 @@ public class InstructionList {
   InstructionList() {
     getThingsWorthBuilding();
     initializeInstructions();
+
     //System.out.println(possibleInstructions.get(GameSimulator.unitNameToUnit.get("zealot")).method.getName());
     orderedInstructionList.add(possibleInstructions.get(buildingsToConstruct.get(0)));
     orderedInstructionList.add(possibleInstructions.get(unitsToConstruct.get(0)));
@@ -51,13 +52,14 @@ public class InstructionList {
     HashMap<Unit,Integer> goalUnits = GameSimulator.getGoalUnits();
     unitsToConstruct.addAll(goalUnits.keySet());
     for (int i = 0; i < unitsToConstruct.size(); i++) {
-      Unit thisUnit = unitsToConstruct.get(i);
+      getDependencies(unitsToConstruct.get(i));
+      /*Unit thisUnit = unitsToConstruct.get(i);
       if ((GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn())))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()));
       }
       if (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()));
-      }
+      }*/
     }
   }
 
@@ -73,10 +75,11 @@ public class InstructionList {
   }
 
   private void getDependencies (Building building) {
-    if (GameSimulator.unitNameList.contains(building.getDependentOn())) {
-
-    } else if (GameSimulator.buildingNameList.contains(building.getDependentOn())) {
-
+    for (int i = 0; i < building.getDependentOn().size(); i++) {
+      if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i)) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i))))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i)));
+        getDependencies(GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i)));
+      }
     }
   }
 
