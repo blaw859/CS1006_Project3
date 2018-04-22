@@ -10,13 +10,12 @@ public class InstructionList {
   GameSimulator currentGame;
   List<Unit> unitsToConstruct = new ArrayList<>();
   List<Building> buildingsToConstruct = new ArrayList<>();
-  List<Unit> unitDependencies = new ArrayList<>();
-  List<Building> buildingDependences = new ArrayList<>();
   int currentInstructionIndex = 0;
 
   InstructionList() {
     getThingsWorthBuilding();
     initializeInstructions();
+
     //System.out.println(possibleInstructions.get(GameSimulator.unitNameToUnit.get("zealot")).method.getName());
     orderedInstructionList.add(possibleInstructions.get(buildingsToConstruct.get(0)));
     orderedInstructionList.add(possibleInstructions.get(unitsToConstruct.get(0)));
@@ -53,13 +52,14 @@ public class InstructionList {
     HashMap<Unit,Integer> goalUnits = GameSimulator.getGoalUnits();
     unitsToConstruct.addAll(goalUnits.keySet());
     for (int i = 0; i < unitsToConstruct.size(); i++) {
-      Unit thisUnit = unitsToConstruct.get(i);
-      if ((GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOnString()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOnString())))) {
-        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOnString()));
+      getDependencies(unitsToConstruct.get(i));
+      /*Unit thisUnit = unitsToConstruct.get(i);
+      if ((GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn())))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()));
       }
       if (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()));
-      }
+      }*/
     }
   }
 
@@ -68,30 +68,20 @@ public class InstructionList {
    * @param unit
    */
   private void getDependencies (Unit unit) {
-    if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOnString()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOnString())))) {
-        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(unit.getDependentOnString()));
-        getDependencies(GameSimulator.buildingNameToBuilding.get(unit.getDependentOnString()));
+    if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn())))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
+        getDependencies(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
     }
   }
 
-  /**
-   * Recursive method that when given a building it will return/get all the necessary dependencies for a building and add them to... insert_type_here
-   * Should "return" object instead of string.
-   * @param building
-   */
   private void getDependencies (Building building) {
-    if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOnString()) != null) && (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString())))) {
-      buildingDependences.add(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString()));
+    for (int i = 0; i < building.getDependentOn().size(); i++) {
+      if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i)) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i))))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i)));
+        getDependencies(GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i)));
+      }
     }
   }
-
-  //alternative method that does a return instead of adding them to a list.
-  /*private Building getDependencies (Building building) {
-    if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOnString()) != null) && (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString())))) {
-      return GameSimulator.buildingNameToBuilding.get(building.getDependentOnString());
-    }
-    return GameSimulator.buildingNameToBuilding.get(building.getDependentOnString());
-  }*/
 
   public void moveToNextInstruction() {
     currentInstructionIndex++;
