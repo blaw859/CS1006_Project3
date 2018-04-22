@@ -72,12 +72,16 @@ public class InstructionList {
     }
   }
 
-  private void getDependencies (Building building) {
-    if (GameSimulator.unitNameList.contains(building.getDependentOn())) {
-
-    } else if (GameSimulator.buildingNameList.contains(building.getDependentOn())) {
-
+  /**
+   * Recursive method that when given a building it will return/get all the necessary dependencies for a building and add them to... insert_type_here
+   * Should "return" object instead of string.
+   * @param building
+   */
+  private Building getDependencies (Building building) {
+    if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOn()) != null) && (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOn())))) {
+      return GameSimulator.buildingNameToBuilding.get(building.getDependentOn());
     }
+    return GameSimulator.buildingNameToBuilding.get(building.getDependentOn());
   }
 
   public void moveToNextInstruction() {
