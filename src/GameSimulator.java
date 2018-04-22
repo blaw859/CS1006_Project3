@@ -65,9 +65,9 @@ public class GameSimulator {
     int numOfBuilding = numberOfActiveBuildings.get(buildingToBeConstructed);
     boolean hasResources = currentGas >= buildingToBeConstructed.getGasCost() && currentMinerals >= buildingToBeConstructed.getMineralCost();
     System.out.println("Has resources: "+ hasResources);
-    boolean hasNeededBuildings = activeBuildingList.contains(buildingToBeConstructed.getDependentOn()) || (buildingToBeConstructed.getDependentOn() == null);
+    boolean hasNeededBuildings = activeBuildingList.contains(buildingToBeConstructed.getDependentOnString()) || (buildingToBeConstructed.getDependentOnString() == null);
     System.out.println("Has buildings: "+ hasNeededBuildings);
-    System.out.println("Dependant on: "+buildingToBeConstructed.getDependentOn());
+    System.out.println("Dependant on: "+buildingToBeConstructed.getDependentOnString());
     boolean hasAvailableProbes = numberOfActiveUnits.get(unitNameToUnit.get("probe")) > 0;
     System.out.println("Has probes: "+ hasAvailableProbes);
     long buildTime = buildingToBeConstructed.getBuildTime();
@@ -96,7 +96,7 @@ public class GameSimulator {
     //Indicates if the user has the resources to build the unit
     boolean hasResources = currentGas >= unitToBeConstructed.getGasCost() && currentMinerals >= unitToBeConstructed.getMineralCost() && maxSupply >= currentSupply+(unitToBeConstructed.getSupplyNeeded());
     //Indicates if the buildings exist that are required to build the unit gets dependant on strings and then uses strings to get buildings
-    boolean buildingsExist = numberOfActiveBuildings.containsKey(buildingNameToBuilding.get(unitToBeConstructed.getDependentOn()));
+    boolean buildingsExist = numberOfActiveBuildings.containsKey(buildingNameToBuilding.get(unitToBeConstructed.getDependentOnString()));
     //Indicates if the buildings are able to build the unit
     boolean buildingsAbleToBuild = false;
     if (!(buildingsExist && hasResources)) {
@@ -105,7 +105,7 @@ public class GameSimulator {
       currentGas =- unitToBeConstructed.getGasCost();
       currentMinerals =- unitToBeConstructed.getMineralCost();
       currentSupply =+ unitToBeConstructed.getSupplyNeeded();
-      getShortestBuildQueue(buildingNameToBuilding.get(unitToBeConstructed.getDependentOn())).addUnitToBuildQueue(unitToBeConstructed);
+      getShortestBuildQueue(buildingNameToBuilding.get(unitToBeConstructed.getDependentOnString())).addUnitToBuildQueue(unitToBeConstructed);
     }
     return true;
   }

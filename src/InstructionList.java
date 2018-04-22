@@ -10,6 +10,8 @@ public class InstructionList {
   GameSimulator currentGame;
   List<Unit> unitsToConstruct = new ArrayList<>();
   List<Building> buildingsToConstruct = new ArrayList<>();
+  List<Unit> unitDependencies = new ArrayList<>();
+  List<Building> buildingDependences = new ArrayList<>();
   int currentInstructionIndex = 0;
 
   InstructionList() {
@@ -52,8 +54,8 @@ public class InstructionList {
     unitsToConstruct.addAll(goalUnits.keySet());
     for (int i = 0; i < unitsToConstruct.size(); i++) {
       Unit thisUnit = unitsToConstruct.get(i);
-      if ((GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn())))) {
-        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()));
+      if ((GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOnString()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOnString())))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOnString()));
       }
       if (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()));
@@ -66,9 +68,9 @@ public class InstructionList {
    * @param unit
    */
   private void getDependencies (Unit unit) {
-    if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn())))) {
-        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
-        getDependencies(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
+    if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOnString()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOnString())))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(unit.getDependentOnString()));
+        getDependencies(GameSimulator.buildingNameToBuilding.get(unit.getDependentOnString()));
     }
   }
 
@@ -77,12 +79,19 @@ public class InstructionList {
    * Should "return" object instead of string.
    * @param building
    */
-  private Building getDependencies (Building building) {
-    if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOn()) != null) && (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOn())))) {
-      return GameSimulator.buildingNameToBuilding.get(building.getDependentOn());
+  private void getDependencies (Building building) {
+    if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOnString()) != null) && (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString())))) {
+      buildingDependences.add(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString()));
     }
-    return GameSimulator.buildingNameToBuilding.get(building.getDependentOn());
   }
+
+  //alternative method that does a return instead of adding them to a list.
+  /*private Building getDependencies (Building building) {
+    if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOnString()) != null) && (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString())))) {
+      return GameSimulator.buildingNameToBuilding.get(building.getDependentOnString());
+    }
+    return GameSimulator.buildingNameToBuilding.get(building.getDependentOnString());
+  }*/
 
   public void moveToNextInstruction() {
     currentInstructionIndex++;

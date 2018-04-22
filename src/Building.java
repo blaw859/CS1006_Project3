@@ -18,7 +18,7 @@ public class Building {
    * just define the properties of each type of unit
    * @param buildingInfo
    */
-  public Building(String[] buildingInfo) {
+  public Building(String[] buildingInfo) throws Exception {
     dependentOn = new ArrayList<>();
     type = buildingInfo[0];
     mineralCost = Integer.parseInt(buildingInfo[1]);
@@ -43,7 +43,7 @@ public class Building {
   }
 
   public static void createBuildings() {
-    File csvFile = new File("/Users/benlawrence859/Documents/University/First Year/CS1006_Project3/datasheets/buildings.csv");
+    File csvFile = new File("C:\\CS1003\\src\\CS1006_Project_3\\datasheets\\buildings.csv");
     String currentLine = "";
     BufferedReader reader;
     try {
@@ -80,7 +80,7 @@ public class Building {
     return supplyProvided;
   }
 
-  public List<String> getDependentOn() {
+  public List<String> getDependentOnString() {
     return dependentOn;
   }
 }
