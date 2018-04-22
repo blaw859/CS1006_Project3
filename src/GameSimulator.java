@@ -5,6 +5,9 @@ import java.util.*;
 public class GameSimulator {
   private int currentSupply;
   private int maxSupply;
+
+  private int time;
+
   private double currentMinerals;
   private double currentGas;
   private boolean goalComplete;
@@ -13,6 +16,7 @@ public class GameSimulator {
   private final int TICKRATE = 1;
   private final int STANDARD_MINERALS_PER_MIN = 41;
   private final int THIRD_PROBE_MINERALS_PER_MIN = 20;
+
   public static List<Unit> unitList = new ArrayList<>();
   public static List<String> unitNameList = new ArrayList<>();
   public static List<Building> buildingList = new ArrayList<>();
@@ -33,20 +37,22 @@ public class GameSimulator {
   public GameSimulator(InstructionList instructions) {
     startGame();
     //System.out.println("Number of probes: "+numberOfActiveUnits.get(unitNameToUnit.get("probe")));
-    int maxLoops = 50;
-    int turnNumber = 0;
+    int maxLoops = 20;
+    time = 0;
     boolean nextInstruction = false;
-    while (!checkGoalUnitsBuilt() && turnNumber < maxLoops) {
+    while (!checkGoalUnitsBuilt() && time < maxLoops*60) {
       updateAllResources();
-      System.out.println("Turn number: "+turnNumber+" Minerals:"+currentMinerals);
+      System.out.println("Current elapsed time: "+ getTimeStamp() +" Minerals:" + currentMinerals);
       System.out.println(constructBuilding(buildingNameToBuilding.get("gateway")));
       System.out.println("Number of gateways: "+numberOfActiveBuildings.get(buildingNameToBuilding.get("gateway")));
-      turnNumber++;
+      time++;
     }
   }
 
-  public void executeOrders() {
-    //to implement future switch statement for possible orders
+  public String getTimeStamp() {
+    int mins = time / 60;
+    int secs = time % 60;
+    return ( mins < 10 ? "0" + mins : mins ) + ":" + ( secs < 10 ? "0" + secs : secs);
   }
 
   /**
@@ -62,6 +68,7 @@ public class GameSimulator {
   public boolean constructBuilding(Building buildingToBeConstructed) {
     String buildingName = buildingToBeConstructed.toString();
     numberOfActiveBuildings.putIfAbsent(buildingToBeConstructed, 0);
+    int finishTime = 0;
     int numOfBuilding = numberOfActiveBuildings.get(buildingToBeConstructed);
     boolean hasResources = currentGas >= buildingToBeConstructed.getGasCost() && currentMinerals >= buildingToBeConstructed.getMineralCost();
     System.out.println("Has resources: "+ hasResources);
@@ -75,11 +82,19 @@ public class GameSimulator {
 
       return false;
     } else {
-        currentGas -= currentGas - buildingToBeConstructed.getGasCost();
-        currentMinerals -= currentMinerals - buildingToBeConstructed.getMineralCost();
-        numberOfActiveBuildings.merge(buildingToBeConstructed, 1, (a, b) -> a + b);
-        buildingToBeConstructed.createNewBuildQueue(this);
-        //System.out.println("Total number of " + numberOfActiveBuildings.get(buildingNameToBuilding.get(buildingName)) + ": " + numOfBuilding);
+        finishTime = time + buildingNameToBuilding.get(buildingToBeConstructed).getBuildTime();
+        if (!(time == finishTime)) {
+          time++;
+          //System.out.println("hello");
+          //getTimeStamp();
+        } else {
+          //getTimeStamp();
+          currentGas -= currentGas - buildingToBeConstructed.getGasCost();
+          currentMinerals -= currentMinerals - buildingToBeConstructed.getMineralCost();
+          numberOfActiveBuildings.merge(buildingToBeConstructed, 1, (a, b) -> a + b);
+          buildingToBeConstructed.createNewBuildQueue(this);
+          //System.out.println("Total number of " + numberOfActiveBuildings.get(buildingNameToBuilding.get(buildingName)) + ": " + numOfBuilding);
+        }
     }
     return true;
   }
@@ -93,6 +108,7 @@ public class GameSimulator {
    * @return True if the unit has been built, false otherwise
    */
   public boolean constructUnit(Unit unitToBeConstructed) {
+    int finishTime = 0;
     //Indicates if the user has the resources to build the unit
     boolean hasResources = currentGas >= unitToBeConstructed.getGasCost() && currentMinerals >= unitToBeConstructed.getMineralCost() && maxSupply >= currentSupply+(unitToBeConstructed.getSupplyNeeded());
     //Indicates if the buildings exist that are required to build the unit gets dependant on strings and then uses strings to get buildings
@@ -102,10 +118,15 @@ public class GameSimulator {
     if (!(buildingsExist && hasResources)) {
      return false;
     } else {
-      currentGas =- unitToBeConstructed.getGasCost();
-      currentMinerals =- unitToBeConstructed.getMineralCost();
-      currentSupply =+ unitToBeConstructed.getSupplyNeeded();
-      getShortestBuildQueue(buildingNameToBuilding.get(unitToBeConstructed.getDependentOnString())).addUnitToBuildQueue(unitToBeConstructed);
+      finishTime = time + buildingNameToBuilding.get(unitToBeConstructed).getBuildTime();
+      if (!(time == finishTime)) {
+        time++;
+      } else {
+        currentGas = -unitToBeConstructed.getGasCost();
+        currentMinerals = -unitToBeConstructed.getMineralCost();
+        currentSupply = +unitToBeConstructed.getSupplyNeeded();
+        getShortestBuildQueue(buildingNameToBuilding.get(unitToBeConstructed.getDependentOnString())).addUnitToBuildQueue(unitToBeConstructed);
+      }
     }
     return true;
   }
