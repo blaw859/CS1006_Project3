@@ -26,6 +26,16 @@ public class Instruction {
     }
   }
 
+  public Instruction(String specialCase) {
+    if (specialCase.equals("move probe to gas")) {
+      try {
+        method = GameSimulator.class.getMethod("moveProbeToGas");
+      } catch (NoSuchMethodException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
   /*private static void initalizePossibleMethods() {
     try {
       possibleMethods.add(GameSimulator.class.getMethod("constructUnit", Unit.class));
