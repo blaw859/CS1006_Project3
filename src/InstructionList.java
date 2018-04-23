@@ -33,6 +33,9 @@ public class InstructionList {
       orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
       orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
       orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
+      orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
+      orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
+      orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
 
     }
   }

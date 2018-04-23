@@ -5,7 +5,7 @@ public class SC_Build_Order_Optimizer {
   public static void main(String[] args) {
     initializeUnits();
     GameSimulator.setGoalUnits(getGoalUnits());
-    InstructionList instructionList1 = new InstructionList(1);
+    InstructionList instructionList1 = new InstructionList();
     GameSimulator game1 = new GameSimulator(instructionList1);
   }
 
