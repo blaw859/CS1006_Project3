@@ -28,12 +28,6 @@ public class InstructionList {
       orderedInstructionList.add(new Instruction(GameSimulator.buildingNameToBuilding.get("pylon")));
       orderedInstructionList.add(new Instruction(GameSimulator.buildingNameToBuilding.get("gateway")));
       orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
-      orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
-      orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
-      orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
-      orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
-      orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
-
     }
   }
 
@@ -149,17 +143,8 @@ public class InstructionList {
     return false;
   }
 
-  /*private boolean waitUntilUnitBuilt(Unit unit) {
-
-  }*/
-
   public void moveToNextInstruction() {
-    if (currentInstructionIndex + 1 >= orderedInstructionList.size()) {
-      GameSimulator.stopSimulation = true;
-    } else {
-      currentInstructionIndex++;
-    }
-
+    currentInstructionIndex++;
   }
 
   public Instruction getCurrentInstruction() {
