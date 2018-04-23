@@ -60,8 +60,9 @@ public class Unit {
   private static void getBuildingsWithBuildQueues() {
     List<Building> buildingsWithBuildQueues = new ArrayList<>();
     for (int i = 0; i < allUnits.size(); i++) {
-      if (!buildingsWithBuildQueues.contains(allUnits.get(i).getDependentOnBuilding())) {
-        buildingsWithBuildQueues.add(allUnits.get(i).getDependentOnBuilding());
+      if (!buildingsWithBuildQueues.contains(allUnits.get(i).getBuiltFromBuilding()) && allUnits.get(i).getBuiltFromBuilding() != null) {
+        buildingsWithBuildQueues.add(allUnits.get(i).getBuiltFromBuilding());
+        System.out.println(allUnits.get(i).getBuiltFromBuilding().getType());
       }
     }
     Building.setBuildingsWithBuildQueues(buildingsWithBuildQueues);

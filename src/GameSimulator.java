@@ -8,7 +8,7 @@ import java.util.*;
 public class GameSimulator {
   private int currentSupply;
   private int maxSupply;
-
+  public static boolean stopSimulation = false;
   private int time;
 
   private double currentMinerals;
@@ -61,7 +61,7 @@ public class GameSimulator {
     boolean nextInstruction = false;
 
 
-    while (!checkGoalUnitsBuilt() && time < maxLoops*60) {
+    while (!checkGoalUnitsBuilt() && time < maxLoops*60 && !stopSimulation) {
       System.out.println("_______NEW TURN_______");
       System.out.println(instructions.currentInstructionIndex);
       System.out.println("time: "+time);
@@ -79,6 +79,11 @@ public class GameSimulator {
       } else if (instructions.getCurrentInstruction().method.getName().equals("constructBuilding")) {
         System.out.println("Current instruction: Constructing "+instructions.getCurrentInstruction().building.getType());
       }
+      if (time == 74) {
+        System.out.println(buildingNameToBuilding.get("gateway").buildQueues.size());
+        constructUnit(unitNameToUnit.get("zealot"));
+
+      }
       try {
         if (instructions.getCurrentInstruction().getArgType().equals("unit")) {
           boolean canMoveOn = (boolean) instructions.getCurrentInstruction().method.invoke(this, instructions.getCurrentInstruction().unit);
@@ -89,7 +94,13 @@ public class GameSimulator {
             //Add to some kind of actually useful instruction list?
           }
         } else if (instructions.getCurrentInstruction().getArgType().equals("building")) {
+          if (time == 13) {
+            System.out.println(instructions.getCurrentInstruction().method.getName());
+            System.out.println(instructions.getCurrentInstruction().building.getType());
+            constructBuilding(buildingNameToBuilding.get("pylon"));
+          }
           boolean canMoveOn = (boolean) instructions.getCurrentInstruction().method.invoke(this, instructions.getCurrentInstruction().building);
+
           System.out.println("Invocation returned: "+canMoveOn);
           if(canMoveOn) {
             instructions.moveToNextInstruction();
@@ -98,7 +109,10 @@ public class GameSimulator {
           }
         }
       } catch (Exception e) {
-        //e.printStackTrace();
+        e.printStackTrace();
+        System.out.println(instructions.getCurrentInstruction().method.getName());
+        System.out.println(instructions.getCurrentInstruction().unit.getType());
+
         System.out.println("Invocation Exception");
       }
       updateAllResources();
@@ -163,6 +177,7 @@ public class GameSimulator {
           }
           //numberOfActiveBuildings.merge(buildingToBeConstructed, 1, (a, b) -> a + b);
           addToActiveBuildingList(buildingToBeConstructed);
+          createBuildQueue(buildingToBeConstructed);
           //buildingToBeConstructed.createNewBuildQueue(this);
       }
     }
@@ -211,8 +226,8 @@ public class GameSimulator {
       currentGas -= unitToBeConstructed.getGasCost();
       currentMinerals -= unitToBeConstructed.getMineralCost();
       currentSupply += unitToBeConstructed.getSupplyNeeded();
-
-      //getShortestBuildQueue(buildingNameToBuilding.get(unitToBeConstructed.getDependentOn())).addUnitToBuildQueue(unitToBeConstructed);
+      BuildQueue buildQueue = getShortestBuildQueue(unitToBeConstructed.getBuiltFromBuilding());
+      buildQueue.addUnitToBuildQueue(unitToBeConstructed);
     }
     return true;
   }
@@ -247,7 +262,12 @@ public class GameSimulator {
   }
 
   private void createBuildQueue(Building building) {
+    System.out.println("_______________________________________WAHEY_______________________________");
+    for (int i = 0; i < Building.buildingsWithBuildQueues.size(); i++) {
+      System.out.println(Building.buildingsWithBuildQueues.get(i).getType());
+    }
     if (Building.buildingsWithBuildQueues.contains(building)) {
+      System.out.println("_________________________ADDING A BUILD QUEUE___________________________");
       building.buildQueues.add(new BuildQueue(5,this));
     }
   }
@@ -315,6 +335,11 @@ public class GameSimulator {
       }
     }
     return false;
+  }
+
+  private void stopSimulation() {
+    stopSimulation = true;
+    System.out.println(getTimeStamp());
   }
 
   public List<Building> getActiveBuildingList() {
