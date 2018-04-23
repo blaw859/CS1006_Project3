@@ -5,13 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Building {
+  static List<Building> allBuildings = new ArrayList<>();
+  static List<Building> buildingsWithBuildQueues = new ArrayList<>();
   private String type;
   private int mineralCost;
   private int gasCost;
   private int buildTime;
   private int supplyProvided;
   private List<String> dependentOn = new ArrayList<>();
-  public List<BuildQueue> buildQueues;
+  private List<Building> dependentOnBuildings = new ArrayList<>();
+  public List<BuildQueue> buildQueues = new ArrayList<>();
 
   /**
    * This is only a reference! if you want to create a new building do not create a new building object because the objects
@@ -35,6 +38,7 @@ public class Building {
     GameSimulator.buildingList.add(this);
     GameSimulator.buildingNameList.add(type);
     GameSimulator.buildingNameToBuilding.put(type,this);
+    //System.out.println("Creating building "+type);
 
   }
 
@@ -43,7 +47,7 @@ public class Building {
   }
 
   public static void createBuildings() {
-    File csvFile = new File("C:\\CS1003\\src\\CS1006_Project_3\\datasheets\\buildings.csv");
+    File csvFile = new File("/Users/benlawrence859/Documents/University/First Year/CS1006_Project3/datasheets/buildings.csv");
     String currentLine = "";
     BufferedReader reader;
     try {
@@ -55,8 +59,21 @@ public class Building {
         }
         new Building(buildingInfo);
       }
+      setDependencies();
     } catch (Exception e) {
       e.printStackTrace();
+    }
+  }
+
+  private static void setDependencies() {
+    for (int i = 0; i < allBuildings.size(); i++) {
+      //System.out.println("Getting dependencies for unit "+allBuildings.get(i).type);
+      List<String> nameStringList = allBuildings.get(i).getDependentOnString();
+      Building currentBuilding = allBuildings.get(i);
+      for (int j = 0; j < allBuildings.get(i).dependentOn.size(); j++) {
+        //System.out.println("The unit "+allBuildings.get(i).type+" has a dependency on "+ nameStringList.get(j));
+        currentBuilding.dependentOnBuildings.add(GameSimulator.buildingNameToBuilding.get(nameStringList.get(j)));
+      }
     }
   }
 
@@ -80,7 +97,15 @@ public class Building {
     return supplyProvided;
   }
 
+  public List<Building> getDependentOnBuildings() {
+    return dependentOnBuildings;
+  }
+
   public List<String> getDependentOnString() {
     return dependentOn;
+  }
+
+  public static void setBuildingsWithBuildQueues(List<Building> buildingsWithBuildQueues) {
+    Building.buildingsWithBuildQueues = buildingsWithBuildQueues;
   }
 }

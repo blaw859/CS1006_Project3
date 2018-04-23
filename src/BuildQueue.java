@@ -29,19 +29,15 @@ public class BuildQueue {
     }
   }
 //Test
-  public void updateAllBuildLists() {
+  public static void updateAllBuildLists(GameSimulator currentGame) {
     for (int i = 0; i < allBuildQueues.size(); i++) {
       Unit unit = allBuildQueues.get(i).buildQueue.peek().unit;
       if (allBuildQueues.get(i).numberOfUnitsInQueue > 0) {
         allBuildQueues.get(i).buildQueue.peek().buildTime--;
         if (allBuildQueues.get(i).buildQueue.peek().buildTime == 0) {
           //I think this line essentially does this
-          /*if (currentGame.numberOfActiveUnits.get(unitType) == null) {
-            currentGame.numberOfActiveUnits.put(unitType,1);
-          } else {
-            currentGame.numberOfActiveUnits.put(unitType,currentGame.numberOfActiveUnits.get(unitType)+1)
-          }*/
           currentGame.numberOfActiveUnits.merge(unit, 1, (a, b) -> a + b);
+          //currentGame.numberOfActiveUnits.merge(unit, 1, (a, b) -> a + b);
         }
       }
     }

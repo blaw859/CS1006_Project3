@@ -1,32 +1,49 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class InstructionList {
   List<Instruction> orderedInstructionList = new ArrayList<>();
-  //List<Instruction> possibleInstructionList = new ArrayList<>();
+  HashMap<Object,Integer> unitInstructionCalls = new HashMap<>();
   HashMap<Object,Instruction> possibleInstructions = new HashMap<>();
+  WeightedInstructionMap weightedInstructions = new WeightedInstructionMap();
   Class gameClass = GameSimulator.class;
   GameSimulator currentGame;
   List<Unit> unitsToConstruct = new ArrayList<>();
   List<Building> buildingsToConstruct = new ArrayList<>();
-  int currentInstructionIndex = 0;
+  public int currentInstructionIndex = 0;
+
+  private void printInstructionList() {
+    //System.out.println(orderedInstructionList.size());
+    for (int i = 0; i < orderedInstructionList.size(); i++) {
+      if (orderedInstructionList.get(i).method.getName().equals("constructUnit")) {
+        System.out.println("Constructing Unit: "+orderedInstructionList.get(i).unit.getType());
+      } else if (orderedInstructionList.get(i).method.getName().equals("constructBuilding")) {
+        System.out.println("Constructing Building: "+orderedInstructionList.get(i).building.getType());
+      }
+    }
+  }
+
+  InstructionList(int testInstructionList) {
+    if (testInstructionList == 1) {
+      orderedInstructionList.add(new Instruction(GameSimulator.buildingNameToBuilding.get("pylon")));
+      orderedInstructionList.add(new Instruction(GameSimulator.buildingNameToBuilding.get("gateway")));
+      orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
+    }
+  }
 
   InstructionList() {
     getThingsWorthBuilding();
     initializeInstructions();
+    giveInstructionsWeights();
+    generateInstructionList();
+    printInstructionList();
+
     for (int i = 0; i < buildingsToConstruct.size(); i++) {
       System.out.println("Building to build: "+buildingsToConstruct.get(i).getType());
-      //orderedInstructionList.add(possibleInstructions.get(buildingsToConstruct.get(i)));
     }
     for (int j = 0; j < unitsToConstruct.size(); j++) {
       System.out.println("Unit to build: "+unitsToConstruct.get(j).getType());
-      //orderedInstructionList.add(possibleInstructions.get(unitsToConstruct.get(j)));
     }
-    //System.out.println(possibleInstructions.get(GameSimulator.unitNameToUnit.get("zealot")).method.getName());
-    //orderedInstructionList.add(possibleInstructions.get(buildingsToConstruct.get(0)));
-    //orderedInstructionList.add(possibleInstructions.get(unitsToConstruct.get(0)));
   }
 
   private void initializeInstructions() {
@@ -39,14 +56,20 @@ public class InstructionList {
     possibleInstructions.put(GameSimulator.unitNameToUnit.get("probe"), new Instruction(GameSimulator.unitNameToUnit.get("probe")));
   }
 
-  /*private void initializeMethods() {
-    try {
-      Method constructUnit = gameClass.getMethod("constructUnit", Unit.class);
-      Method constructBuilding = gameClass.getMethod("constructBuilding", Building.class);
-    } catch (Exception e) {
-      System.out.println("These methods cannot be found");
+  private void giveInstructionsWeights() {
+    for (int i = 0; i < unitsToConstruct.size(); i++) {
+      //Maybe change doing this if performance is really bad
+      weightedInstructions.add(((double)35)/unitsToConstruct.size(),new Instruction(unitsToConstruct.get(i)));
     }
-  }*/
+    for (int j = 0; j < buildingsToConstruct.size(); j++) {
+      weightedInstructions.add(((double)35)/buildingsToConstruct.size(),new Instruction(buildingsToConstruct.get(j)));
+    }
+    weightedInstructions.add(((double)30),new Instruction(GameSimulator.unitNameToUnit.get("probe")));
+    //Old code that might be useful, probably keep this until you are sure this method works well
+    /*if (hasBuildingBeenCreated(GameSimulator.buildingNameToBuilding.get(unitsToConstruct.get(unitConstructionNumber).getDependentOn()))) {
+        orderedInstructionList.add(new Instruction(unitsToConstruct.get(unitConstructionNumber)));
+      }*/
+  }
 
   //Probably rename this before submission
   private void getThingsWorthBuilding() {
@@ -55,13 +78,6 @@ public class InstructionList {
     for (int i = 0; i < unitsToConstruct.size(); i++) {
       getDependencies(unitsToConstruct.get(i));
       System.out.println("looping");
-      /*Unit thisUnit = unitsToConstruct.get(i);
-      if ((GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn())))) {
-        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getDependentOn()));
-      }
-      if (!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()))) {
-        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(thisUnit.getBuiltFrom()));
-      }*/
     }
   }
 
@@ -70,10 +86,6 @@ public class InstructionList {
    * @param unit
    */
   private void getDependencies (Unit unit) {
-    System.out.println(unit.getType());
-    System.out.println("first"+GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
-    System.out.println("second"+buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn())));
-    System.out.println((GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()))));
     if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn())))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
         getDependencies(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
@@ -89,11 +101,10 @@ public class InstructionList {
   }
 
   private void getDependencies (Building building) {
-    System.out.println(building.getType());
-    for (int i = 0; i < building.getDependentOn().size(); i++) {
-      if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i)) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i))))) {
-        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i)));
-        getDependencies(GameSimulator.buildingNameToBuilding.get(building.getDependentOn().get(i)));
+    for (int i = 0; i < building.getDependentOnString().size(); i++) {
+      if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i)) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i))))) {
+        buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i)));
+        getDependencies(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i)));
         System.out.println("building called");
       }
       if (building.getGasCost() > 0) {
@@ -104,14 +115,33 @@ public class InstructionList {
 //Ideas:
   //Only try to build units when their dependant buildings are built
 
-  /*private void generateInstructionList() {
-    double randomNum = Math.random();
+  private void generateInstructionList() {
+    int unitConstructionNumber = ThreadLocalRandom.current().nextInt(unitsToConstruct.size());
     int instructionNumber = 0;
     boolean instructionSetComplete = false;
-    while ()
-    if (randomNum < 40)
+    while (!checkAllIfInstructionsComplete() && instructionNumber < 1000) {
+      orderedInstructionList.add(weightedInstructions.next());
+      instructionNumber++;
+    }
+  }
 
-  }*/
+  private boolean checkAllIfInstructionsComplete() {
+    for (int i = 0; i < unitsToConstruct.size(); i++) {
+      if (!(unitInstructionCalls.get(unitsToConstruct.get(i)) == GameSimulator.getGoalUnits().get(unitsToConstruct.get(i)))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean hasBuildingBeenCreated(Building building) {
+    for (int i = 0; i < orderedInstructionList.size(); i++) {
+      if (orderedInstructionList.get(i).building == building) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   public void moveToNextInstruction() {
     currentInstructionIndex++;
@@ -119,6 +149,34 @@ public class InstructionList {
 
   public Instruction getCurrentInstruction() {
     return orderedInstructionList.get(currentInstructionIndex);
+  }
+
+  //Possibly make this more efficient
+  private class WeightedInstructionMap {
+    private final NavigableMap<Double,Instruction> weightedInstructions = new TreeMap<>();
+    private final Random random;
+    private double total;
+
+    public WeightedInstructionMap() {
+      this(new Random());
+    }
+
+    public WeightedInstructionMap(Random random) {
+      this.random = random;
+    }
+
+    public WeightedInstructionMap add (double weight, Instruction instruction) {
+      if (weight <= 0) return this;
+      total += weight;
+      weightedInstructions.put(total, instruction);
+      return this;
+    }
+
+    public Instruction next() {
+      double value = random.nextDouble()*total;
+      return weightedInstructions.higherEntry(value).getValue();
+    }
+
   }
 
 

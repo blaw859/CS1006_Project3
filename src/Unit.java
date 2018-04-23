@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Unit {
   private String type;
@@ -10,7 +12,10 @@ public class Unit {
   private int warpGateCooldown;
   private int supplyNeeded;
   private String dependentOn;
+  private Building dependentOnBuilding;
   private String builtFrom;
+  private Building builtFromBuilding;
+  private static List<Unit> allUnits = new ArrayList<>();
 
   //The String being the building type and the int being the number of them currently built;
   //private static HashMap<String,Integer> typeCount;
@@ -27,6 +32,7 @@ public class Unit {
     GameSimulator.unitList.add(this);
     GameSimulator.unitNameList.add(type);
     GameSimulator.unitNameToUnit.put(type,this);
+    allUnits.add(this);
   }
 
   public static void createUnits() {
@@ -44,9 +50,30 @@ public class Unit {
         new Unit(unitInfo);
         i++;
       }
+      setDependencies();
+      getBuildingsWithBuildQueues();
     } catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  private static void getBuildingsWithBuildQueues() {
+    List<Building> buildingsWithBuildQueues = new ArrayList<>();
+    for (int i = 0; i < allUnits.size(); i++) {
+      if (!buildingsWithBuildQueues.contains(allUnits.get(i).getDependentOnBuilding())) {
+        buildingsWithBuildQueues.add(allUnits.get(i).getDependentOnBuilding());
+      }
+    }
+    Building.setBuildingsWithBuildQueues(buildingsWithBuildQueues);
+  }
+
+  private static void setDependencies() {
+    for (int i = 0; i < allUnits.size(); i++) {
+      Unit currentUnit = allUnits.get(i);
+      currentUnit.dependentOnBuilding = GameSimulator.buildingNameToBuilding.get(currentUnit.dependentOn);
+      currentUnit.builtFromBuilding = GameSimulator.buildingNameToBuilding.get(currentUnit.builtFrom);
+    }
+
   }
 
   public String getType() {
@@ -75,6 +102,14 @@ public class Unit {
 
   public String getDependentOn() {
     return dependentOn;
+  }
+
+  public Building getDependentOnBuilding() {
+    return dependentOnBuilding;
+  }
+
+  public Building getBuiltFromBuilding() {
+    return builtFromBuilding;
   }
 
   public String getBuiltFrom() {
