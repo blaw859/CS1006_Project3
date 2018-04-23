@@ -12,7 +12,7 @@ colossus,300,200,75,75,6,robotics bay,robotics facility
 tempest,300,200,60,60,4,fleet beacon,stargate
 high templar,50,150,55,45,2,templar archives,gateway
 dark templar,125,125,55,45,2,dark shrine,gateway
-archon,0,0,12,12,4,null,merging of two templar
+archon,0,0,12,12,4,null,null
 carrier,350,250,120,120,6,fleet beacon,stargate
 mothership core,100,100,30,30,2,cybernetics core,nexus
 mothership,300,300,100,100,5,fleet beacon,mothership core

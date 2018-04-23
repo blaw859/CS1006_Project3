@@ -10,6 +10,7 @@ public class BuildQueue {
   public static List<BuildQueue> allBuildQueues= new ArrayList<>();
 
   public BuildQueue(int queueLength, GameSimulator game) {
+    System.out.println("+++++++++++++++++++++++++++++++++++New build queue created++++++++++++++++++++++++++++++++++++++");
     this.maxQueueLength = queueLength;
     numberOfUnitsInQueue = 0;
     allBuildQueues.add(this);
@@ -31,13 +32,16 @@ public class BuildQueue {
 //Test
   public static void updateAllBuildLists(GameSimulator currentGame) {
     for (int i = 0; i < allBuildQueues.size(); i++) {
-      Unit unit = allBuildQueues.get(i).buildQueue.peek().unit;
-      if (allBuildQueues.get(i).numberOfUnitsInQueue > 0) {
-        allBuildQueues.get(i).buildQueue.peek().buildTime--;
-        if (allBuildQueues.get(i).buildQueue.peek().buildTime == 0) {
-          //I think this line essentially does this
-          currentGame.numberOfActiveUnits.merge(unit, 1, (a, b) -> a + b);
-          //currentGame.numberOfActiveUnits.merge(unit, 1, (a, b) -> a + b);
+      if (!allBuildQueues.get(i).buildQueue.isEmpty()) {
+        Unit unit = allBuildQueues.get(i).buildQueue.peek().unit;
+        if (allBuildQueues.get(i).numberOfUnitsInQueue > 0) {
+          allBuildQueues.get(i).buildQueue.peek().buildTime--;
+          if (allBuildQueues.get(i).buildQueue.peek().buildTime == 0) {
+            System.out.println("Updating buildqueue");
+            //I think this line essentially does this
+            currentGame.numberOfActiveUnits.merge(unit, 1, (a, b) -> a + b);
+            //currentGame.numberOfActiveUnits.merge(unit, 1, (a, b) -> a + b);
+          }
         }
       }
     }
