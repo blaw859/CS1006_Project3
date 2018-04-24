@@ -39,7 +39,7 @@ public class InstructionList {
       longestList = listLength2;
       shortestList = listLength1;
     }
-    //zSystem.out.println("Longest List:"+ longestList);
+    //System.out.println("Longest List:"+ longestList);
     for (int i = 0; i < longestList; i++) {
       //System.out.println("Shortest List: "+shortestList);
       if (ThreadLocalRandom.current().nextInt(10) != 10 && i < shortestList) {
@@ -72,6 +72,8 @@ public class InstructionList {
 
   InstructionList(int testInstructionList) {
     if (testInstructionList == 1) {
+      //orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("gateway")));
+      orderedInstructionList.add(new Instruction(GameSimulator.buildingNameToBuilding.get("gateway")));
       orderedInstructionList.add(new Instruction(GameSimulator.buildingNameToBuilding.get("pylon")));
       orderedInstructionList.add(new Instruction(GameSimulator.buildingNameToBuilding.get("gateway")));
       orderedInstructionList.add(new Instruction(GameSimulator.unitNameToUnit.get("zealot")));
@@ -142,7 +144,7 @@ public class InstructionList {
    * @param unit
    */
   private void getDependencies (Unit unit) {
-    if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOn() != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn())))) {
+    if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn())))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
         getDependencies(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
 

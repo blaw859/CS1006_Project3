@@ -9,13 +9,15 @@ public class SC_Build_Order_Optimizer {
   static List<List<GameSimulator>> allGamePools = new ArrayList<>();
   private static WeightedMap weightedGames = new WeightedMap();
   static List<GameSimulator> fastestTen = new ArrayList<>();
+  static GameSimulator fastestGame = null;
 
 
   public static void main(String[] args) {
     initializeUnits();
     GameSimulator.setGoalUnits(getGoalUnits());
+    /*GameSimulator first = new GameSimulator(new InstructionList(1));
+    first.printInstructions();*/
     int shortestTime = 1000000;
-    GameSimulator fastestGame;
     for (int i = 0; i < 100; i++) {
       allGames.add(new GameSimulator(new InstructionList()));
       weightedGames.add(((double) 1) / allGames.get(i).timeTakenToComplete, allGames.get(i));
@@ -35,7 +37,6 @@ public class SC_Build_Order_Optimizer {
       for (int i = 0; i < 100; i++) {
         currentPool.add(new GameSimulator(new InstructionList(((GameSimulator) weightedGames.next()),((GameSimulator) weightedGames.next()))));
         poolSum = poolSum + currentPool.get(i).timeTakenToComplete;
-        System.out.println("Poolsum = "+poolSum);
         if (currentPool.get(i).timeTakenToComplete < shortestTime) {
           shortestTime = allGames.get(i).timeTakenToComplete;
           fastestGame = allGames.get(i);
@@ -49,6 +50,7 @@ public class SC_Build_Order_Optimizer {
     }
 
     System.out.println("The fastest game took "+ getTimeStamp(shortestTime));
+    fastestGame.printInstructions();
     /*InstructionList instructionList1 = new InstructionList();
     GameSimulator game1 = new GameSimulator(instructionList1);
     System.out.println("Now the second game");

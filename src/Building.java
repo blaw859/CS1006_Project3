@@ -38,6 +38,7 @@ public class Building {
     GameSimulator.buildingList.add(this);
     GameSimulator.buildingNameList.add(type);
     GameSimulator.buildingNameToBuilding.put(type,this);
+    allBuildings.add(this);
     //System.out.println("Creating building "+type);
 
   }
@@ -71,11 +72,11 @@ public class Building {
 
   private static void setDependencies() {
     for (int i = 0; i < allBuildings.size(); i++) {
-      //System.out.println("Getting dependencies for unit "+allBuildings.get(i).type);
+      System.out.println("Getting dependencies for unit "+allBuildings.get(i).type);
       List<String> nameStringList = allBuildings.get(i).getDependentOnString();
       Building currentBuilding = allBuildings.get(i);
       for (int j = 0; j < allBuildings.get(i).dependentOn.size(); j++) {
-        //System.out.println("The unit "+allBuildings.get(i).type+" has a dependency on "+ nameStringList.get(j));
+        System.out.println("The unit "+allBuildings.get(i).type+" has a dependency on "+ nameStringList.get(j));
         currentBuilding.dependentOnBuildings.add(GameSimulator.buildingNameToBuilding.get(nameStringList.get(j)));
       }
     }
