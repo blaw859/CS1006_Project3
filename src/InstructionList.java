@@ -104,7 +104,7 @@ public class InstructionList {
   }
 
   InstructionList() {
-    getThingsWorthBuilding();
+    getPossibleUnitsToConstruct();
     initializeInstructions();
     giveInstructionsWeights();
     generateInstructionList();
@@ -118,6 +118,9 @@ public class InstructionList {
     }
   }
 
+  /**
+   * 
+   */
   private void initializeInstructions() {
     for (int i = 0; i < unitsToConstruct.size(); i++) {
       possibleInstructions.put(unitsToConstruct.get(i), new Instruction(unitsToConstruct.get(i)));
@@ -128,9 +131,11 @@ public class InstructionList {
     possibleInstructions.put(GameSimulator.unitNameToUnit.get("probe"), new Instruction(GameSimulator.unitNameToUnit.get("probe")));
   }
 
+  /**
+   * Assigns instructions different weights using the weighted map
+   */
   private void giveInstructionsWeights() {
     for (int i = 0; i < unitsToConstruct.size(); i++) {
-      //Maybe change doing this if performance is really bad
       weightedInstructions.add(((double)35)/unitsToConstruct.size(),new Instruction(unitsToConstruct.get(i)));
     }
     for (int j = 0; j < buildingsToConstruct.size(); j++) {
@@ -138,20 +143,19 @@ public class InstructionList {
     }
     weightedInstructions.add(((double)30),new Instruction(GameSimulator.unitNameToUnit.get("probe")));
     //Old code that might be useful, probably keep this until you are sure this method works well
-    /*if (hasBuildingBeenCreated(GameSimulator.buildingNameToBuilding.get(unitsToConstruct.get(unitConstructionNumber).getDependentOn()))) {
-        orderedInstructionList.add(new Instruction(unitsToConstruct.get(unitConstructionNumber)));
-      }*/
   }
 
-  //Probably rename this before submission
-  private void getThingsWorthBuilding() {
+  /**
+   * Uses the goal units and their dependencies to get all of the instructions that will be necessary for the program
+   * to be successful
+   */
+  private void getPossibleUnitsToConstruct() {
     HashMap<Unit,Integer> goalUnits = GameSimulator.getGoalUnits();
     System.out.println(unitsToConstruct);
     goalUnits.keySet();
     unitsToConstruct.addAll(goalUnits.keySet());
     for (int i = 0; i < unitsToConstruct.size(); i++) {
       getDependencies(unitsToConstruct.get(i));
-      //.out.println("looping");
     }
   }
 
@@ -179,7 +183,6 @@ public class InstructionList {
       if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i)) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i))))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i)));
         getDependencies(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i)));
-        //System.out.println("building called");
       }
       if (building.getGasCost() > 0) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get("assimilator"));
@@ -190,8 +193,6 @@ public class InstructionList {
   private Instruction getRandomPossibleInstruction() {
     return possibleInstructions.get(ThreadLocalRandom.current().nextInt(possibleInstructions.size()));
   }
-//Ideas:
-  //Only try to build units when their dependant buildings are built
 
   private void generateInstructionList() {
     int unitConstructionNumber = ThreadLocalRandom.current().nextInt(unitsToConstruct.size());
@@ -221,10 +222,6 @@ public class InstructionList {
     return false;
   }
 
-  /*private boolean waitUntilUnitBuilt(Unit unit) {
-
-  }*/
-
   public void moveToNextInstruction() {
       currentInstructionIndex++;
   }
@@ -241,17 +238,8 @@ public class InstructionList {
     return orderedInstructionList;
   }
 
-  public void clearListFrom(int finishIndex) {
-    //orderedInstructionList.subList(finishIndex+1, orderedInstructionList.size()).clear();
-  }
-
   public HashMap<Object, Instruction> getPossibleInstructions() {
     return possibleInstructions;
   }
-
-  //Possibly make this more efficient
-
-
 }
-//Instruction list inputted
-//Game outputs all actions with timestamps including those that do not need to be written in instructions
+

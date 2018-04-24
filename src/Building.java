@@ -106,6 +106,10 @@ public class Building {
     return dependentOn;
   }
 
+  /**
+   * Updates the static list of buildings that need to have buildqueues
+   * @param buildingsWithBuildQueues
+   */
   public static void setBuildingsWithBuildQueues(List<Building> buildingsWithBuildQueues) {
     Building.buildingsWithBuildQueues = buildingsWithBuildQueues;
   }
