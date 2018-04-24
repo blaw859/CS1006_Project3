@@ -146,6 +146,8 @@ public class InstructionList {
   //Probably rename this before submission
   private void getThingsWorthBuilding() {
     HashMap<Unit,Integer> goalUnits = GameSimulator.getGoalUnits();
+    System.out.println(unitsToConstruct);
+    goalUnits.keySet();
     unitsToConstruct.addAll(goalUnits.keySet());
     for (int i = 0; i < unitsToConstruct.size(); i++) {
       getDependencies(unitsToConstruct.get(i));

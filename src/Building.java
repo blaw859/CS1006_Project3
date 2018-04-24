@@ -52,7 +52,6 @@ public class Building {
    * Gets the information from the csv file and calls the constructor for all the buildings
    */
   public static void createBuildings(File csvFile) {
-    //csvFile = new File("/Users/benlawrence859/Documents/University/First Year/CS1006_Project3/datasheets/buildings.csv");
     String currentLine = "";
     BufferedReader reader;
     try {
@@ -81,6 +80,7 @@ public class Building {
       }
     }
   }
+  //Getters for all of the object fields
 
   public String getType() {
     return type;
@@ -96,10 +96,6 @@ public class Building {
 
   public int getBuildTime() {
     return buildTime;
-  }
-
-  public int getSupplyProvided() {
-    return supplyProvided;
   }
 
   public List<Building> getDependentOnBuildings() {
