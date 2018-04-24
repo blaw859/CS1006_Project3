@@ -23,7 +23,7 @@ public class GameSimulator {
   public static List<Integer> buildingFinishTime = new ArrayList<>();
   public static HashMap<String, Building> buildingNameToBuilding = new HashMap<>();
   public static HashMap<String, Unit> unitNameToUnit = new HashMap<>();
-    public static ArrayList<Building> buildingBeingConstructed = new ArrayList<>();
+  public static HashMap<Building, Integer> buildingBeingConstructed = new HashMap<>();
   private int finalInstructionListLength = 0;
   private static HashMap<Unit,Integer> goalUnits;
   public List<Building> activeBuildingList = new ArrayList<>();
@@ -41,7 +41,6 @@ public class GameSimulator {
     boolean nextInstruction = false;
     while (!checkGoalUnitsBuilt() && time < maxLoops*600 && !stopSimulation) {
       //printStuff(instructions);
-      updateAllResources();
       try {
         if (instructions.getCurrentInstruction().getArgType().equals("unit")) {
           boolean canMoveOn = (boolean) instructions.getCurrentInstruction().method.invoke(this, instructions.getCurrentInstruction().unit);
@@ -62,10 +61,9 @@ public class GameSimulator {
           }
         }
       } catch (Exception e) {
-        //e.printStackTrace();
-        //System.out.println(instructions.getCurrentInstruction().method.getName());
-        //System.out.println(instructions.getCurrentInstruction().unit.getType());
-        //System.out.println("Invocation Exception");
+        /*System.out.println(instructions.getCurrentInstruction().method.getName());
+        System.out.println(instructions.getCurrentInstruction().unit.getType());
+        System.out.println("Invocation Exception");*/
       }
 
 
@@ -101,39 +99,36 @@ public class GameSimulator {
     boolean hasAvailableProbes = numberOfActiveUnits.get(unitNameToUnit.get("probe")) > 0;
     //System.out.println("Has available probes = " + hasAvailableProbes);
 
-      for (Integer e : buildingFinishTime) {
-          if (e == (time)) {
-              addToActiveBuildingList(buildingBeingConstructed.get(0));
-              if (numberOfActiveBuildings.get(buildingBeingConstructed.get(0)) == null) {
-                  numberOfActiveBuildings.put(buildingBeingConstructed.get(0), 1);
-              } else {
-                  numberOfActiveBuildings.put(buildingBeingConstructed.get(0), numberOfActiveBuildings.get(buildingBeingConstructed.get(0)) + 1);
-              }
-              buildingBeingConstructed.remove(0);
-          }
+    for (Map.Entry<Building, Integer> e : buildingBeingConstructed.entrySet()) {
+      if (e.getValue().equals(time)) {
+        addToActiveBuildingList(e.getKey());
+        if (numberOfActiveBuildings.get(e.getKey()) == null) {
+          numberOfActiveBuildings.put(e.getKey(), 1);
+        } else {
+          numberOfActiveBuildings.put(e.getKey(), numberOfActiveBuildings.get(e.getKey()) + 1);
+        }
       }
+    }
 
     if (!hasNeededBuildings) {
-      return false;
+      return true;
     } else if (!(hasResources && hasAvailableProbes)) {
+      updateAllResources();
       return false;
     } else {
       if (buildingToBeConstructed.getType().equals("assimilator") && numberOfActiveBuildings.get(buildingNameToBuilding.get("assimilator")) >= 2) {
+        gasGeyserNumber--;
         return true;
       } else {
-          if (buildingToBeConstructed.getType().equals(("assimilator")) && gasGeyserNumber < 2) {
-              System.out.println("Building assimilator");
-              assignProbeToGas();
-              gasGeyserNumber--;
-          }
-          buildingFinishTime.add(time + buildingToBeConstructed.getBuildTime());
-          currentGas = currentGas - buildingToBeConstructed.getGasCost();
-          currentMinerals = currentMinerals - buildingToBeConstructed.getMineralCost();
-          buildingBeingConstructed.add(buildingToBeConstructed);
-          createBuildQueue(buildingToBeConstructed);
+        buildingFinishTime.add(time + buildingToBeConstructed.getBuildTime());
+        currentGas = currentGas - buildingToBeConstructed.getGasCost();
+        currentMinerals = currentMinerals - buildingToBeConstructed.getMineralCost();
+        buildingBeingConstructed.put(buildingToBeConstructed, (time + buildingToBeConstructed.getBuildTime()));
+        createBuildQueue(buildingToBeConstructed);
       }
     }
     addInstructionToList("Construct "+ buildingToBeConstructed.getType());
+    updateAllResources();
     return true;
   }
 //TODO make it so that a possible method is building an assimilator if gas is needed
@@ -159,6 +154,7 @@ public class GameSimulator {
     if (!buildingsExist) {
       return true;
     } else if (!(hasResources)){
+      updateAllResources();
       return false;
     } else {
       currentGas -= unitToBeConstructed.getGasCost();
@@ -167,6 +163,7 @@ public class GameSimulator {
       buildQueue.addUnitToBuildQueue(unitToBeConstructed);
     }
     addInstructionToList("Construct "+ unitToBeConstructed.getType());
+    updateAllResources();
     return true;
   }
 
@@ -348,7 +345,7 @@ public class GameSimulator {
 
   private void stopSimulation() {
     stopSimulation = true;
-    instructionList.clearListFrom(instructionList.getCurrentInstructionIndex());
+    //instructionList.clearListFrom(instructionList.getCurrentInstructionIndex());
     //finalInstructionListLength = instructionList.getCurrentInstructionIndex();
     //System.out.println(getTimeStamp());
   }

@@ -47,7 +47,7 @@ public class SC_Build_Order_Optimizer {
           shortestTime = allGames.get(i).timeTakenToComplete;
           fastestGame = allGames.get(i);
         }
-        //System.out.println("Pool "+ k +" Game " + i + " took " + currentPool.get(i).timeTakenToComplete);
+        System.out.println("Pool "+ k +" Game " + i + " took " + currentPool.get(i).timeTakenToComplete);
       }
       System.out.println("The pool average was "+ (poolSum/100));
       System.out.println("The fastest game took " + shortestTime);
