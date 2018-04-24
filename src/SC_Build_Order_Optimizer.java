@@ -4,25 +4,50 @@ import java.util.List;
 import java.util.Scanner;
 
 public class SC_Build_Order_Optimizer {
+  static int numberOfPools = 10;
   static List<GameSimulator> allGames = new ArrayList<>();
+  static List<List<GameSimulator>> allGamePools = new ArrayList<>();
+  private static WeightedMap weightedGames = new WeightedMap();
+  static List<GameSimulator> fastestTen = new ArrayList<>();
+
 
   public static void main(String[] args) {
     initializeUnits();
     GameSimulator.setGoalUnits(getGoalUnits());
     int shortestTime = 1000000;
     GameSimulator fastestGame;
-  /*  InstructionList instructionList1 = new InstructionList();
-    GameSimulator game1 = new GameSimulator(instructionList1);*/
-    for (int i = 0; i < 10; i++) {
-      allGames.add(new GameSimulator(new InstructionList(),i));
+    for (int i = 0; i < 100; i++) {
+      allGames.add(new GameSimulator(new InstructionList()));
+      weightedGames.add(((double) 1) / allGames.get(i).timeTakenToComplete, allGames.get(i));
       if (allGames.get(i).timeTakenToComplete < shortestTime) {
         shortestTime = allGames.get(i).timeTakenToComplete;
         fastestGame = allGames.get(i);
       }
-      System.out.println("Game " + i + " took " + getTimeStamp(allGames.get(i).timeTakenToComplete));
+      System.out.println("Initial Game " + i + " took " + allGames.get(i).timeTakenToComplete);
+      //System.out.println("The instructionList was " + allGames.get(i).getFinalInstructionListLength());
       //Move this internal
       BuildQueue.clearBuildQueues();
     }
+    for (int k = 0; k < numberOfPools; k++) {
+      int poolSum = 0;
+      List<GameSimulator> currentPool = new ArrayList<>();
+      System.out.println("New Pool");
+      for (int i = 0; i < 100; i++) {
+        currentPool.add(new GameSimulator(new InstructionList(((GameSimulator) weightedGames.next()),((GameSimulator) weightedGames.next()))));
+        poolSum = poolSum + currentPool.get(i).timeTakenToComplete;
+        System.out.println("Poolsum = "+poolSum);
+        if (currentPool.get(i).timeTakenToComplete < shortestTime) {
+          shortestTime = allGames.get(i).timeTakenToComplete;
+          fastestGame = allGames.get(i);
+        }
+        System.out.println("Pool "+ k +" Game " + i + " took " + currentPool.get(i).timeTakenToComplete);
+      }
+      System.out.println("The pool average was"+ (poolSum/100));
+      System.out.println("The fastest game took " + shortestTime);
+      allGamePools.add(currentPool);
+      currentPool.clear();
+    }
+
     System.out.println("The fastest game took "+ getTimeStamp(shortestTime));
     /*InstructionList instructionList1 = new InstructionList();
     GameSimulator game1 = new GameSimulator(instructionList1);

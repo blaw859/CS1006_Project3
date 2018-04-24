@@ -5,12 +5,12 @@ public class InstructionList {
   List<Instruction> orderedInstructionList = new ArrayList<>();
   HashMap<Object,Integer> unitInstructionCalls = new HashMap<>();
   HashMap<Object,Instruction> possibleInstructions = new HashMap<>();
-  WeightedInstructionMap weightedInstructions = new WeightedInstructionMap();
+  WeightedMap weightedInstructions = new WeightedMap();
   Class gameClass = GameSimulator.class;
   GameSimulator currentGame;
   List<Unit> unitsToConstruct = new ArrayList<>();
   List<Building> buildingsToConstruct = new ArrayList<>();
-  public int currentInstructionIndex = 0;
+  private int currentInstructionIndex = 0;
 
   public void printInstructionList() {
     //System.out.println(orderedInstructionList.size());
@@ -22,6 +22,53 @@ public class InstructionList {
       }
     }
   }
+
+  //Crossbreeds instructionlist
+  public InstructionList(GameSimulator game1, GameSimulator game2) {
+    InstructionList instructionList1 = game1.getInstructionList();
+    InstructionList instructionList2 = game2.getInstructionList();
+    possibleInstructions = instructionList1.getPossibleInstructions();
+    int listLength1 = instructionList1.orderedInstructionList.size();
+    int listLength2 = instructionList2.orderedInstructionList.size();
+    int longestList = 0;
+    int shortestList = 0;
+    if (listLength1 >= listLength2) {
+      longestList = listLength1;
+      shortestList = listLength2;
+    } else {
+      longestList = listLength2;
+      shortestList = listLength1;
+    }
+    //zSystem.out.println("Longest List:"+ longestList);
+    for (int i = 0; i < longestList; i++) {
+      //System.out.println("Shortest List: "+shortestList);
+      if (ThreadLocalRandom.current().nextInt(10) != 10 && i < shortestList) {
+        addInstructionToNewList(instructionList1,instructionList2,i);
+      } else {
+        orderedInstructionList.add(getRandomPossibleInstruction());
+      }
+    }
+  }
+
+  private void addInstructionToNewList(InstructionList instructionList1, InstructionList instructionList2, int currentIndex) {
+    //This switch works such that if one instruction is null then the other will be used
+    switch (ThreadLocalRandom.current().nextInt(1)) {
+      case 0:
+        if (instructionList1.getOrderedInstructionList().get(currentIndex) != null) {
+          orderedInstructionList.add(instructionList1.getOrderedInstructionList().get(currentIndex));
+          break;
+        }
+      case 1:
+        if (instructionList2.getOrderedInstructionList().get(currentIndex) != null) {
+          orderedInstructionList.add(instructionList2.getOrderedInstructionList().get(currentIndex));
+          break;
+        }
+      default:
+        orderedInstructionList.add(instructionList1.getOrderedInstructionList().get(currentIndex));
+        break;
+    }
+  }
+
 
   InstructionList(int testInstructionList) {
     if (testInstructionList == 1) {
@@ -95,7 +142,7 @@ public class InstructionList {
    * @param unit
    */
   private void getDependencies (Unit unit) {
-    if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn())))) {
+    if ((GameSimulator.buildingNameToBuilding.get(unit.getDependentOn() != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn())))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
         getDependencies(GameSimulator.buildingNameToBuilding.get(unit.getDependentOn()));
 
@@ -121,6 +168,10 @@ public class InstructionList {
       }
     }
   }
+
+  private Instruction getRandomPossibleInstruction() {
+    return possibleInstructions.get(ThreadLocalRandom.current().nextInt(possibleInstructions.size()));
+  }
 //Ideas:
   //Only try to build units when their dependant buildings are built
 
@@ -129,7 +180,7 @@ public class InstructionList {
     int instructionNumber = 0;
     boolean instructionSetComplete = false;
     while (!checkAllIfInstructionsComplete() && instructionNumber < 1000) {
-      orderedInstructionList.add(weightedInstructions.next());
+      orderedInstructionList.add((Instruction) weightedInstructions.next());
       instructionNumber++;
     }
   }
@@ -164,33 +215,23 @@ public class InstructionList {
     return orderedInstructionList.get(currentInstructionIndex);
   }
 
-  //Possibly make this more efficient
-  private class WeightedInstructionMap {
-    private final NavigableMap<Double,Instruction> weightedInstructions = new TreeMap<>();
-    private final Random random;
-    private double total;
-
-    public WeightedInstructionMap() {
-      this(new Random());
-    }
-
-    public WeightedInstructionMap(Random random) {
-      this.random = random;
-    }
-
-    public WeightedInstructionMap add (double weight, Instruction instruction) {
-      if (weight <= 0) return this;
-      total += weight;
-      weightedInstructions.put(total, instruction);
-      return this;
-    }
-
-    public Instruction next() {
-      double value = random.nextDouble()*total;
-      return weightedInstructions.higherEntry(value).getValue();
-    }
-
+  public int getCurrentInstructionIndex() {
+    return currentInstructionIndex;
   }
+
+  public List<Instruction> getOrderedInstructionList() {
+    return orderedInstructionList;
+  }
+
+  public void clearListFrom(int finishIndex) {
+    //orderedInstructionList.subList(finishIndex+1, orderedInstructionList.size()).clear();
+  }
+
+  public HashMap<Object, Instruction> getPossibleInstructions() {
+    return possibleInstructions;
+  }
+
+  //Possibly make this more efficient
 
 
 }

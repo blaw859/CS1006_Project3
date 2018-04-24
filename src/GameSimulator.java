@@ -1,5 +1,3 @@
-import com.sun.tools.doclets.formats.html.SourceToHTMLConverter;
-
 import java.util.*;
 
 //TODO make constructing buildings more accurate
@@ -7,30 +5,19 @@ import java.util.*;
 //TODO move probe to assimilator
 public class GameSimulator {
   public int timeTakenToComplete = 100000;
-  private int currentSupply;
-  private int maxSupply;
   public boolean stopSimulation = false;
   private int time;
   private InstructionList instructionList;
-  //private HashMap<Integer,String>
   private double currentMinerals;
   private double currentGas;
-  private boolean goalComplete;
-  private BuildQueue buildQueue;
-  //Ticks per second
   private final int TICKRATE = 1;
-  private final int STANDARD_MINERALS_PER_MIN = 41;
-  private final int THIRD_PROBE_MINERALS_PER_MIN = 20;
   public static List<Unit> unitList = new ArrayList<>();
   public static List<String> unitNameList = new ArrayList<>();
   public static List<Building> buildingList = new ArrayList<>();
   public static List<String> buildingNameList = new ArrayList<>();
   public static HashMap<String, Building> buildingNameToBuilding = new HashMap<>();
   public static HashMap<String, Unit> unitNameToUnit = new HashMap<>();
-  //public static List<buildingToBuildQueue> buildingsWithQueues= new ArrayList<>();
-  //This maps each building to its respective buildqueue
-  //public HashMap<Building, BuildQueue> buildingToBuildQueue = new HashMap<>();
-  //For the moment we will say that the zealot can still be working at a building whilst building another building
+  private int finalInstructionListLength = 0;
   private static HashMap<Unit,Integer> goalUnits;
   public List<Building> activeBuildingList = new ArrayList<>();
   //to decide on whether list or hashmap is better for availableProbes
@@ -56,27 +43,14 @@ public class GameSimulator {
     }
   }
 
-  public GameSimulator(InstructionList instructions, int gameNum) {
+  public GameSimulator(InstructionList instructions) {
     startGame();
     this.instructionList = instructions;
     int maxLoops = 20;
     time = 0;
     boolean nextInstruction = false;
     //System.out.println(instructions.orderedInstructionList.size());
-
-    /*if (gameNum == 5) {
-      instructions.printInstructionList();
-    }*/
-
     while (!checkGoalUnitsBuilt() && time < maxLoops*600 && !stopSimulation) {
-      /*if (gameNum == 5) {
-        printStuff(instructions);
-      }*/
-      /*System.out.println("Active building list size: "+activeBuildingList.size());
-
-      for (int k = 0; k < activeBuildingList.size(); k++) {
-        System.out.println(activeBuildingList.get(k).getType());
-      }*/
       if (instructions.getCurrentInstruction().method.getName().equals("constructUnit")) {
         //System.out.println("Current instruction: Constructing "+instructions.getCurrentInstruction().unit.getType());
       } else if (instructions.getCurrentInstruction().method.getName().equals("constructBuilding")) {
@@ -107,7 +81,6 @@ public class GameSimulator {
         e.printStackTrace();
         System.out.println(instructions.getCurrentInstruction().method.getName());
         System.out.println(instructions.getCurrentInstruction().unit.getType());
-
         System.out.println("Invocation Exception");
       }
 
@@ -358,16 +331,26 @@ public class GameSimulator {
 
   private void stopSimulation() {
     stopSimulation = true;
+    instructionList.clearListFrom(instructionList.getCurrentInstructionIndex());
+    //finalInstructionListLength = instructionList.getCurrentInstructionIndex();
     //System.out.println(getTimeStamp());
   }
 
   private void checkFinished() {
-    if (instructionList.currentInstructionIndex + 1 >= instructionList.orderedInstructionList.size()) {
+    if (instructionList.getCurrentInstructionIndex() + 1 >= instructionList.orderedInstructionList.size()) {
       stopSimulation();
     }
   }
   public List<Building> getActiveBuildingList() {
     return activeBuildingList;
+  }
+
+  public int getFinalInstructionListLength() {
+    return finalInstructionListLength;
+  }
+
+  public InstructionList getInstructionList() {
+    return instructionList;
   }
 
   private class buildingToBuildQueue {
