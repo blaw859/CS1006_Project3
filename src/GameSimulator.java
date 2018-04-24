@@ -21,7 +21,7 @@ public class GameSimulator {
   public static List<String> unitNameList = new ArrayList<>();
   public static List<Building> buildingList = new ArrayList<>();
   public static List<String> buildingNameList = new ArrayList<>();
-  public static List<Building> buildingBeingConstructed = new ArrayList<>();
+  public static HashMap<Building, Integer> buildingBeingConstructed = new HashMap<>();
   public static List<Integer> buildingFinishTime = new ArrayList<>();
   public static List<Unit> unitBeingConstructed = new ArrayList<>();
   public static List<Integer> unitFinishTime = new ArrayList<>();
@@ -133,12 +133,14 @@ public class GameSimulator {
     boolean hasAvailableProbes = numberOfActiveUnits.get(unitNameToUnit.get("probe")) > 0;
     System.out.println("Has available probes = "+hasAvailableProbes);
 
-    if(buildingFinishTime.contains(time)) {
-      addToActiveBuildingList(buildingToBeConstructed);
-        if (numberOfActiveBuildings.get(buildingToBeConstructed) == null) {
-            numberOfActiveBuildings.put(buildingToBeConstructed, 1);
-        } else {
-            numberOfActiveBuildings.put(buildingToBeConstructed, numberOfActiveBuildings.get(buildingToBeConstructed) + 1);
+    for (Map.Entry<Building, Integer> e : buildingBeingConstructed.entrySet()) {
+        if (e.getValue().equals(time)) {
+            addToActiveBuildingList(e.getKey());
+            if (numberOfActiveBuildings.get(e.getKey()) == null) {
+                numberOfActiveBuildings.put(e.getKey(), 1);
+            } else {
+                numberOfActiveBuildings.put(e.getKey(), numberOfActiveBuildings.get(e.getKey()) + 1);
+            }
         }
     }
 
@@ -154,7 +156,7 @@ public class GameSimulator {
           buildingFinishTime.add(time + buildingToBeConstructed.getBuildTime());
           currentGas = currentGas - buildingToBeConstructed.getGasCost();
           currentMinerals = currentMinerals - buildingToBeConstructed.getMineralCost();
-          buildingBeingConstructed.add(buildingToBeConstructed);
+          buildingBeingConstructed.put(buildingToBeConstructed, (time + buildingToBeConstructed.getBuildTime()));
           createBuildQueue(buildingToBeConstructed);
       }
     }
