@@ -40,14 +40,13 @@ public class GameSimulator {
     time = 0;
     boolean nextInstruction = false;
     while (!checkGoalUnitsBuilt() && time < maxLoops*600 && !stopSimulation) {
-      //printStuff(instructions);
+      printStuff(instructions);
       try {
         if (instructions.getCurrentInstruction().getArgType().equals("unit")) {
           boolean canMoveOn = (boolean) instructions.getCurrentInstruction().method.invoke(this, instructions.getCurrentInstruction().unit);
           if(canMoveOn) {
             checkFinished();
             instructions.moveToNextInstruction();
-          } else {
           }
         } else if (instructions.getCurrentInstruction().getArgType().equals("building")) {
           boolean canMoveOn = (boolean) instructions.getCurrentInstruction().method.invoke(this, instructions.getCurrentInstruction().building);
@@ -66,8 +65,6 @@ public class GameSimulator {
         System.out.println(instructions.getCurrentInstruction().unit.getType());
         System.out.println("Invocation Exception");
       }
-
-
     }
     if (stopSimulation) {
       //System.out.println("Stop simulation called");
@@ -96,12 +93,13 @@ public class GameSimulator {
     numberOfActiveBuildings.putIfAbsent(buildingToBeConstructed, 0);
     boolean hasResources = currentGas >= buildingToBeConstructed.getGasCost() && currentMinerals >= buildingToBeConstructed.getMineralCost();
     boolean hasNeededBuildings = (activeBuildingList.containsAll(buildingToBeConstructed.getDependentOnBuildings()) || buildingToBeConstructed.getDependentOnBuildings().isEmpty());
-    System.out.println("Has needed buildings = " + hasNeededBuildings);
+    //System.out.println("Has needed buildings = " + hasNeededBuildings);
     boolean hasAvailableProbes = numberOfActiveUnits.get(unitNameToUnit.get("probe")) > 0;
-    System.out.println("Has available probes = " + hasAvailableProbes);
+    //System.out.println("Has available probes = " + hasAvailableProbes);
 
     for (Map.Entry<Building, Integer> e : buildingBeingConstructed.entrySet()) {
       if (e.getValue().equals(time)) {
+        System.out.println("This building is now active: "+e.getKey().getType());
         addToActiveBuildingList(e.getKey());
         if (numberOfActiveBuildings.get(e.getKey()) == null) {
           numberOfActiveBuildings.put(e.getKey(), 1);
@@ -118,9 +116,13 @@ public class GameSimulator {
       return false;
     } else {
       if (buildingToBeConstructed.getType().equals("assimilator") && numberOfActiveBuildings.get(buildingNameToBuilding.get("assimilator")) >= 2) {
-        gasGeyserNumber--;
+        System.out.println("djfldasjfkldsajflkjsdaklfjdsaklfjas");
         return true;
       } else {
+        if (buildingToBeConstructed.getType().equals(("assimilator"))){
+          System.out.println("Building assimilator");
+          gasGeyserNumber--;
+        }
         buildingFinishTime.add(time + buildingToBeConstructed.getBuildTime());
         currentGas = currentGas - buildingToBeConstructed.getGasCost();
         currentMinerals = currentMinerals - buildingToBeConstructed.getMineralCost();
@@ -277,6 +279,7 @@ public class GameSimulator {
         return false;
       }
     }
+    System.out.println("Goal units built");
     stopSimulation();
     return true;
   }
@@ -322,11 +325,11 @@ public class GameSimulator {
    */
   private void startGame() {
     numberOfActiveBuildings.put(buildingNameToBuilding.get("nexus"),1);
-    numberOfActiveUnits.put(unitNameToUnit.get("probe"),7);
+    numberOfActiveUnits.put(unitNameToUnit.get("probe"),6);
     currentMinerals = 50;
     currentGas = 0;
     numberOfProbesAtLocation.put("minerals",6);
-    numberOfProbesAtLocation.put("gas",1);
+    numberOfProbesAtLocation.put("gas",0);
     numberOfProbesAtLocation.put("building",0);
     for (int i = 0; i < buildingList.size(); i++) {
       buildingList.get(i).clearBuildQueues();
@@ -345,6 +348,7 @@ public class GameSimulator {
   }
 
   private void stopSimulation() {
+    System.out.println("Stop simulation called");
     stopSimulation = true;
     instructionList.clearListFrom(instructionList.getCurrentInstructionIndex());
     //finalInstructionListLength = instructionList.getCurrentInstructionIndex();
@@ -353,6 +357,7 @@ public class GameSimulator {
 
   private void checkFinished() {
     if (instructionList.getCurrentInstructionIndex() + 1 >= instructionList.orderedInstructionList.size()) {
+      System.out.println("Stopped because instructions");
       stopSimulation();
     }
   }
