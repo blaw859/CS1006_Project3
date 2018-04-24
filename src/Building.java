@@ -17,9 +17,9 @@ public class Building {
   public List<BuildQueue> buildQueues = new ArrayList<>();
 
   /**
-   * This is only a reference! if you want to create a new building do not create a new building object because the objects
-   * just define the properties of each type of unit
-   * @param buildingInfo
+   * Initializes all possible buildings. Dependent on buildings are not immediately initalized as building type objects
+   * as that building may not have been instantiated yet so that is done later
+   * @param buildingInfo An array of strings containing all the information about the building
    */
   public Building(String[] buildingInfo) throws Exception {
     dependentOn = new ArrayList<>();
@@ -39,20 +39,20 @@ public class Building {
     GameSimulator.buildingNameList.add(type);
     GameSimulator.buildingNameToBuilding.put(type,this);
     allBuildings.add(this);
-    //System.out.println("Creating building "+type);
-
   }
 
+  /**
+   * Clears all of the buildqueues when a new game is started
+   */
   public void clearBuildQueues() {
     buildQueues.clear();
   }
 
-  public void createNewBuildQueue (GameSimulator currentGame) {
-    buildQueues.add(new BuildQueue(5,currentGame));
-  }
-
-  public static void createBuildings() {
-    File csvFile = new File("/Users/benlawrence859/Documents/University/First Year/CS1006_Project3/datasheets/buildings.csv");
+  /**
+   * Gets the information from the csv file and calls the constructor for all the buildings
+   */
+  public static void createBuildings(File csvFile) {
+    //csvFile = new File("/Users/benlawrence859/Documents/University/First Year/CS1006_Project3/datasheets/buildings.csv");
     String currentLine = "";
     BufferedReader reader;
     try {

@@ -1,9 +1,12 @@
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
 public class SC_Build_Order_Optimizer {
+  static File unitDatasheet;
+  static File buildingDatasheet;
   static int numberOfPools = 10;
   static List<GameSimulator> allGames = new ArrayList<>();
   static List<List<GameSimulator>> allGamePools = new ArrayList<>();
@@ -11,8 +14,11 @@ public class SC_Build_Order_Optimizer {
   static List<GameSimulator> fastestTen = new ArrayList<>();
   static GameSimulator fastestGame = null;
 
-
   public static void main(String[] args) {
+    if (validateArguments(args) == false) {
+      System.out.println("Invalid datasheets given");
+      System.exit(0);
+    }
     initializeUnits();
     GameSimulator.setGoalUnits(getGoalUnits());
     GameSimulator first = new GameSimulator(new InstructionList(1));
@@ -85,8 +91,28 @@ public class SC_Build_Order_Optimizer {
     return goalUnits;
   }
 
+  private static boolean validateArguments(String[] args) {
+    if (args.length > 1) {
+      return false;
+    }
+    File datasheetFolder = new File(args[0]);
+    File[] datasheets = datasheetFolder.listFiles();
+    for (int i = 0; i < 2; i++) {
+      System.out.println(datasheets[i].getName());
+      //if (!(datasheets[i].getName().equals("buildings.csv") || datasheets[i].getName().equals("units.csv"))) {
+      if (datasheets[i].getName().equals("buildings.csv")) {
+        buildingDatasheet = datasheets[i];
+      } else if (datasheets[i].getName().equals("units.csv")){
+        unitDatasheet = datasheets[i];
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private static void initializeUnits() {
-    Building.createBuildings();
-    Unit.createUnits();
+    Building.createBuildings(buildingDatasheet);
+    Unit.createUnits(unitDatasheet);
   }
 }

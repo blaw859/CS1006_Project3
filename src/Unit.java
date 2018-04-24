@@ -35,8 +35,7 @@ public class Unit {
     allUnits.add(this);
   }
 
-  public static void createUnits() {
-    File csvFile = new File("/Users/benlawrence859/Documents/University/First Year/CS1006_Project3/datasheets/units.csv");
+  public static void createUnits(File csvFile) {
     String currentLine = "";
     BufferedReader reader = null;
     try {
