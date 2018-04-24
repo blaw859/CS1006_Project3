@@ -12,7 +12,7 @@ public class InstructionList {
   List<Building> buildingsToConstruct = new ArrayList<>();
   public int currentInstructionIndex = 0;
 
-  private void printInstructionList() {
+  public void printInstructionList() {
     //System.out.println(orderedInstructionList.size());
     for (int i = 0; i < orderedInstructionList.size(); i++) {
       if (orderedInstructionList.get(i).method.getName().equals("constructUnit")) {
@@ -45,13 +45,13 @@ public class InstructionList {
     initializeInstructions();
     giveInstructionsWeights();
     generateInstructionList();
-    printInstructionList();
+    //printInstructionList();
 
     for (int i = 0; i < buildingsToConstruct.size(); i++) {
-      System.out.println("Building to build: "+buildingsToConstruct.get(i).getType());
+      //System.out.println("Building to build: "+buildingsToConstruct.get(i).getType());
     }
     for (int j = 0; j < unitsToConstruct.size(); j++) {
-      System.out.println("Unit to build: "+unitsToConstruct.get(j).getType());
+      //System.out.println("Unit to build: "+unitsToConstruct.get(j).getType());
     }
   }
 
@@ -86,7 +86,7 @@ public class InstructionList {
     unitsToConstruct.addAll(goalUnits.keySet());
     for (int i = 0; i < unitsToConstruct.size(); i++) {
       getDependencies(unitsToConstruct.get(i));
-      System.out.println("looping");
+      //.out.println("looping");
     }
   }
 
@@ -114,7 +114,7 @@ public class InstructionList {
       if ((GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i)) != null)&&(!buildingsToConstruct.contains(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i))))) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i)));
         getDependencies(GameSimulator.buildingNameToBuilding.get(building.getDependentOnString().get(i)));
-        System.out.println("building called");
+        //System.out.println("building called");
       }
       if (building.getGasCost() > 0) {
         buildingsToConstruct.add(GameSimulator.buildingNameToBuilding.get("assimilator"));
@@ -157,12 +157,7 @@ public class InstructionList {
   }*/
 
   public void moveToNextInstruction() {
-    if (currentInstructionIndex + 1 >= orderedInstructionList.size()) {
-      GameSimulator.stopSimulation = true;
-    } else {
       currentInstructionIndex++;
-    }
-
   }
 
   public Instruction getCurrentInstruction() {

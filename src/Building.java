@@ -42,6 +42,10 @@ public class Building {
 
   }
 
+  public void clearBuildQueues() {
+    buildQueues.clear();
+  }
+
   public void createNewBuildQueue (GameSimulator currentGame) {
     buildQueues.add(new BuildQueue(5,currentGame));
   }

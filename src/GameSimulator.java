@@ -6,11 +6,13 @@ import java.util.*;
 //TODO increase accuracy of mineral mining eg. first second third probe
 //TODO move probe to assimilator
 public class GameSimulator {
+  public int timeTakenToComplete = 100000;
   private int currentSupply;
   private int maxSupply;
-  public static boolean stopSimulation = false;
+  public boolean stopSimulation = false;
   private int time;
-
+  private InstructionList instructionList;
+  //private HashMap<Integer,String>
   private double currentMinerals;
   private double currentGas;
   private boolean goalComplete;
@@ -54,37 +56,38 @@ public class GameSimulator {
     }
   }
 
-  public GameSimulator(InstructionList instructions) {
+  public GameSimulator(InstructionList instructions, int gameNum) {
     startGame();
+    this.instructionList = instructions;
     int maxLoops = 20;
     time = 0;
     boolean nextInstruction = false;
+    //System.out.println(instructions.orderedInstructionList.size());
 
+    /*if (gameNum == 5) {
+      instructions.printInstructionList();
+    }*/
 
-    while (!checkGoalUnitsBuilt() && time < maxLoops*60 && !stopSimulation) {
-      System.out.println("_______NEW TURN_______");
-      BuildQueue.printAllUnitsInBuildQueues();
-      System.out.println(instructions.currentInstructionIndex);
-      System.out.println("time: "+time);
-      System.out.println("minerals: "+currentMinerals);
-      System.out.println("gas: "+currentGas);
-      printUnits();
-      printBuildings();
+    while (!checkGoalUnitsBuilt() && time < maxLoops*600 && !stopSimulation) {
+      /*if (gameNum == 5) {
+        printStuff(instructions);
+      }*/
       /*System.out.println("Active building list size: "+activeBuildingList.size());
 
       for (int k = 0; k < activeBuildingList.size(); k++) {
         System.out.println(activeBuildingList.get(k).getType());
       }*/
       if (instructions.getCurrentInstruction().method.getName().equals("constructUnit")) {
-        System.out.println("Current instruction: Constructing "+instructions.getCurrentInstruction().unit.getType());
+        //System.out.println("Current instruction: Constructing "+instructions.getCurrentInstruction().unit.getType());
       } else if (instructions.getCurrentInstruction().method.getName().equals("constructBuilding")) {
-        System.out.println("Current instruction: Constructing "+instructions.getCurrentInstruction().building.getType());
+        //System.out.println("Current instruction: Constructing "+instructions.getCurrentInstruction().building.getType());
       }
       try {
         if (instructions.getCurrentInstruction().getArgType().equals("unit")) {
           boolean canMoveOn = (boolean) instructions.getCurrentInstruction().method.invoke(this, instructions.getCurrentInstruction().unit);
-          System.out.println("Invocation returned: "+canMoveOn);
+          //System.out.println("Invocation returned: "+canMoveOn);
           if(canMoveOn) {
+            checkFinished();
             instructions.moveToNextInstruction();
           } else {
             //Add to some kind of actually useful instruction list?
@@ -92,8 +95,9 @@ public class GameSimulator {
         } else if (instructions.getCurrentInstruction().getArgType().equals("building")) {
           boolean canMoveOn = (boolean) instructions.getCurrentInstruction().method.invoke(this, instructions.getCurrentInstruction().building);
 
-          System.out.println("Invocation returned: "+canMoveOn);
+          //System.out.println("Invocation returned: "+canMoveOn);
           if(canMoveOn) {
+            checkFinished();
             instructions.moveToNextInstruction();
           } else {
             //Add to some kind of actually useful instruction list?
@@ -106,8 +110,13 @@ public class GameSimulator {
 
         System.out.println("Invocation Exception");
       }
-      updateAllResources();
 
+
+    }
+    if (stopSimulation) {
+      //System.out.println("Stop simulation called");
+      BuildQueue.clearBuildQueues();
+      timeTakenToComplete = time;
     }
   }
 
@@ -134,28 +143,20 @@ public class GameSimulator {
     int numOfBuilding = numberOfActiveBuildings.get(buildingToBeConstructed);
     boolean hasResources = currentGas >= buildingToBeConstructed.getGasCost() && currentMinerals >= buildingToBeConstructed.getMineralCost();
     boolean hasNeededBuildings = activeBuildingList.contains(buildingToBeConstructed.getDependentOnBuildings()) || !(buildingToBeConstructed.getDependentOnString() == null) || !(buildingToBeConstructed.getDependentOnString().isEmpty());
-    //System.out.println("Condition 1"+ buildingToBeConstructed.getDependentOnBuildings());
-    //System.out.println("Condition 2"+ (buildingToBeConstructed.getDependentOnString() == null)
-    //);
-    //System.out.println("Condition 3"+ buildingToBeConstructed.getDependentOnString().isEmpty());
-    //System.out.println("Has needed buildings = "+hasNeededBuildings);
     boolean hasAvailableProbes = numberOfActiveUnits.get(unitNameToUnit.get("probe")) > 0;
     //System.out.println("Has available probes = "+hasAvailableProbes);
     long buildTime = buildingToBeConstructed.getBuildTime();
-    /*if (buildingToBeConstructed.getType().equals("gateway")) {
-      System.out.println(buildingToBeConstructed.getDependentOnBuildings());
-      System.out.println("Does building list contain this? "+activeBuildingList.contains(buildingNameToBuilding.get("pylon")));
-      System.out.println("The value you are looking for is "+buildingToBeConstructed.getDependentOnBuildings());
-    }*/
     if(!hasNeededBuildings) {
       return true;
     } else if (!(hasResources && hasAvailableProbes)) {
+      updateAllResources();
       return false;
     } else {
       if (buildingToBeConstructed.getType().equals("assimilator") && numberOfActiveBuildings.get(buildingNameToBuilding.get("assimilator")) >= 2) {
         return true;
       } else {
           //getTimeStamp();
+        //System.out.println("__________________A BUILDING HAS BEEN BUILT_________________");
           currentGas = currentGas - buildingToBeConstructed.getGasCost();
           currentMinerals = currentMinerals - buildingToBeConstructed.getMineralCost();
           if (numberOfActiveBuildings.get(buildingToBeConstructed) == null) {
@@ -164,7 +165,7 @@ public class GameSimulator {
           } else {
             numberOfActiveBuildings.put(buildingToBeConstructed,numberOfActiveBuildings.get(buildingToBeConstructed)+1);
             //System.out.println("Here 2");
-            //System.out.println("Number of buildings to be constructed "+numberOfActiveBuildings.get(buildingToBeConstructed));
+            //System.out.println("Number of buildings to be constructed that currently exist "+numberOfActiveBuildings.get(buildingToBeConstructed));
           }
           //numberOfActiveBuildings.merge(buildingToBeConstructed, 1, (a, b) -> a + b);
           addToActiveBuildingList(buildingToBeConstructed);
@@ -172,6 +173,7 @@ public class GameSimulator {
           //buildingToBeConstructed.createNewBuildQueue(this);
       }
     }
+    updateAllResources();
     return true;
   }
 //TODO make it so that a possible method is building an assimilator if gas is needed
@@ -210,6 +212,7 @@ public class GameSimulator {
     //Indicates if the buildings are able to build the unit
     boolean buildingsAbleToBuild = false;
     if (!(hasResources)) {
+      updateAllResources();
       return false;
     } else if (!buildingsExist){
       return true;
@@ -217,10 +220,30 @@ public class GameSimulator {
       currentGas -= unitToBeConstructed.getGasCost();
       currentMinerals -= unitToBeConstructed.getMineralCost();
       currentSupply += unitToBeConstructed.getSupplyNeeded();
+      //System.out.println("++++++++++++++++++++++++++Adding "+unitToBeConstructed.getType()+" To build queue+++++++++++++++++++++++++++");
       BuildQueue buildQueue = getShortestBuildQueue(unitToBeConstructed.getBuiltFromBuilding());
       buildQueue.addUnitToBuildQueue(unitToBeConstructed);
     }
+    updateAllResources();
     return true;
+  }
+
+  private void printStuff(InstructionList instructions) {
+    System.out.println("_______NEW TURN_______");
+    System.out.println("Start Build Queue");
+    BuildQueue.printAllUnitsInBuildQueues();
+    System.out.println("End build queue");
+    if (instructions.getCurrentInstruction().method.getName().equals("constructBuilding")) {
+      System.out.println("Instruction: " +instructions.getCurrentInstruction().method.getName() +" "+ instructions.getCurrentInstruction().building.getType());
+    } else if (instructions.getCurrentInstruction().method.getName().equals("constructUnit")) {
+      System.out.println("Instruction: " +instructions.getCurrentInstruction().method.getName() +" "+ instructions.getCurrentInstruction().unit.getType());
+    }
+    System.out.println("time: "+time);
+    System.out.println("minerals: "+currentMinerals);
+    System.out.println("gas: "+currentGas);
+
+    printUnits();
+    printBuildings();
   }
 
   private BuildQueue getShortestBuildQueue(Building building) {
@@ -254,12 +277,12 @@ public class GameSimulator {
   }
 
   private void createBuildQueue(Building building) {
-    System.out.println("_______________________________________WAHEY_______________________________");
-    for (int i = 0; i < Building.buildingsWithBuildQueues.size(); i++) {
-      System.out.println(Building.buildingsWithBuildQueues.get(i).getType());
-    }
+    //System.out.println("_______________________________________WAHEY_______________________________");
+    /*for (int i = 0; i < Building.buildingsWithBuildQueues.size(); i++) {
+      //System.out.println(Building.buildingsWithBuildQueues.get(i).getType());
+    }*/
     if (Building.buildingsWithBuildQueues.contains(building)) {
-      System.out.println("_________________________ADDING A BUILD QUEUE___________________________");
+      //System.out.println("_________________________ADDING A BUILD QUEUE___________________________");
       building.buildQueues.add(new BuildQueue(5,this));
     }
   }
@@ -283,6 +306,7 @@ public class GameSimulator {
         return false;
       }
     }
+    stopSimulation();
     return true;
   }
 
@@ -316,6 +340,9 @@ public class GameSimulator {
     numberOfProbesAtLocation.put("minerals",6);
     numberOfProbesAtLocation.put("gas",0);
     numberOfProbesAtLocation.put("building",0);
+    for (int i = 0; i < buildingList.size(); i++) {
+      buildingList.get(i).clearBuildQueues();
+    }
   }
 
   public boolean moveProbeToGas() {
@@ -331,9 +358,14 @@ public class GameSimulator {
 
   private void stopSimulation() {
     stopSimulation = true;
-    System.out.println(getTimeStamp());
+    //System.out.println(getTimeStamp());
   }
 
+  private void checkFinished() {
+    if (instructionList.currentInstructionIndex + 1 >= instructionList.orderedInstructionList.size()) {
+      stopSimulation();
+    }
+  }
   public List<Building> getActiveBuildingList() {
     return activeBuildingList;
   }
