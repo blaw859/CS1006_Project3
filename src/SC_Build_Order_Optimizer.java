@@ -25,7 +25,7 @@ public class SC_Build_Order_Optimizer {
         shortestTime = allGames.get(i).timeTakenToComplete;
         fastestGame = allGames.get(i);
       }
-      System.out.println("Initial Game " + i + " took " + allGames.get(i).timeTakenToComplete);
+     //System.out.println("Initial Game " + i + " took " + allGames.get(i).timeTakenToComplete);
       //System.out.println("The instructionList was " + allGames.get(i).getFinalInstructionListLength());
       //Move this internal
       BuildQueue.clearBuildQueues();
@@ -33,7 +33,7 @@ public class SC_Build_Order_Optimizer {
     for (int k = 0; k < numberOfPools; k++) {
       int poolSum = 0;
       List<GameSimulator> currentPool = new ArrayList<>();
-      System.out.println("New Pool");
+      //System.out.println("New Pool");
       for (int i = 0; i < 100; i++) {
         currentPool.add(new GameSimulator(new InstructionList(((GameSimulator) weightedGames.next()),((GameSimulator) weightedGames.next()))));
         poolSum = poolSum + currentPool.get(i).timeTakenToComplete;
@@ -41,9 +41,9 @@ public class SC_Build_Order_Optimizer {
           shortestTime = allGames.get(i).timeTakenToComplete;
           fastestGame = allGames.get(i);
         }
-        System.out.println("Pool "+ k +" Game " + i + " took " + currentPool.get(i).timeTakenToComplete);
+        //System.out.println("Pool "+ k +" Game " + i + " took " + currentPool.get(i).timeTakenToComplete);
       }
-      System.out.println("The pool average was"+ (poolSum/100));
+      System.out.println("The pool average was "+ (poolSum/100));
       System.out.println("The fastest game took " + shortestTime);
       allGamePools.add(currentPool);
       currentPool.clear();
